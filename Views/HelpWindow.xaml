@@ -191,6 +191,35 @@
                     </StackPanel>
                 </GroupBox>
 
+                <!-- 6. 外観テーマ & 表示言語 -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🎨" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec6Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec6P1}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec6P2}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 7. 動作ログ & トラブルシューティング -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec7Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec7P1}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec7P2}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec7P3}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
             </StackPanel>
         </ScrollViewer>
 

@@ -83,25 +83,25 @@
     <!-- Help Window -->
     <sys:String x:Key="Help.Title">WoodStreamFileSync - 操作説明 &amp; ご利用ガイド</sys:String>
     <sys:String x:Key="Help.Header">WoodStreamFileSync 操作説明書</sys:String>
-    <sys:String x:Key="Help.Subtitle">機能の使い方とおすすめの設定ガイド</sys:String>
+    <sys:String x:Key="Help.Subtitle">機能の使い方とおすすめの設定ガイド (v1.0.0.0)</sys:String>
 
     <sys:String x:Key="Help.Sec1Title">1. 基本操作とタスクトレイ常駐</sys:String>
-    <sys:String x:Key="Help.Sec1Desc">本アプリは、Windowsのタスクトレイ（画面右下の通知領域）に常駐してバックグラウンドで同期を行います。</sys:String>
+    <sys:String x:Key="Help.Sec1Desc">本アプリは、Windowsのタスクトレイ（画面右下の通知領域）に常駐してバックグラウンドでフォルダ同期を行います。</sys:String>
     <sys:String x:Key="Help.Sec1P1">• トレイアイコン ダブルクリック: 設定画面を表示します。</sys:String>
-    <sys:String x:Key="Help.Sec1P2">• トレイアイコン 右クリック: 「今すぐ同期」「リアルタイム監視の切替」「設定」「ログ表示」「終了」メニューが表示されます。</sys:String>
+    <sys:String x:Key="Help.Sec1P2">• トレイアイコン 右クリック: 「今すぐ同期」「リアルタイム監視の切替」「設定」「ログ表示」「操作説明」「終了」メニューが表示されます。</sys:String>
     <sys:String x:Key="Help.Sec1P3">• 設定画面の [X] 閉じるボタン: アプリを終了せず、タスクトレイに格納（常駐維持）します。</sys:String>
     <sys:String x:Key="Help.Sec1P4">• アプリを完全に終了したい場合は、トレイの右クリックメニューから「🚪 終了」を選択してください。</sys:String>
 
     <sys:String x:Key="Help.Sec2Title">2. 同期元・同期先フォルダの指定</sys:String>
     <sys:String x:Key="Help.Sec2P1">• 同期元 (Source): バックアップ・同期したい元フォルダを指定します。「参照...」から選択可能です。</sys:String>
-    <sys:String x:Key="Help.Sec2P2">• 同期先 (Dest): コピー先のフォルダを指定します。</sys:String>
+    <sys:String x:Key="Help.Sec2P2">• 同期先 (Dest): コピー先のフォルダを指定します。ローカルドライブのほか、NASやファイルサーバーを指定できます。</sys:String>
     <sys:String x:Key="Help.Sec2ExTitle">💡 パスの指定例:</sys:String>
     <sys:String x:Key="Help.Sec2ExLocal">  - ローカルドライブ: C:\Users\YourName\Documents</sys:String>
     <sys:String x:Key="Help.Sec2ExUnc">  - NAS / ファイルサーバー (UNCパス): \\192.168.1.100\share\backup または \\NAS-SERVER\Folder</sys:String>
 
     <sys:String x:Key="Help.Sec3Title">3. 同期トリガー &amp; デバウンス制御</sys:String>
     <sys:String x:Key="Help.Sec3P1">• 定期同期: 指定した分数（例: 30分）ごとに自動でバックグラウンド同期を実行します。</sys:String>
-    <sys:String x:Key="Help.Sec3P2">• リアルタイム変更検知同期: ファイルの作成・変更・削除・リネームをリアルタイムに検知して同期します。</sys:String>
+    <sys:String x:Key="Help.Sec3P2">• リアルタイム変更検知同期: FileSystemWatcher により、ファイルの作成・変更・削除・リネームをリアルタイムに検知して同期します。</sys:String>
     <sys:String x:Key="Help.Sec3P3">変更後待機（デバウンス秒数）:</sys:String>
     <sys:String x:Key="Help.Sec3P4">ファイルの連続保存や大容量ファイルのコピー中に同期が何度も起動するのを防止する機能です。最後のファイル変更から指定秒数（既定: 10秒）の間新たな変更が発生しなくなってから、1回だけ安全に同期を実行します。</sys:String>
 
@@ -112,9 +112,18 @@
 
     <sys:String x:Key="Help.Sec5Title">5. Robocopy 詳細オプション</sys:String>
     <sys:String x:Key="Help.Sec5P1">• 完全ミラーリング (/MIR): 同期元で削除されたファイルを、同期先からも自動削除して完全一致させます。</sys:String>
-    <sys:String x:Key="Help.Sec5P2">• リトライ設定 (/R /W): ファイル使用中（ロック）時の再試行回数と待機秒数を指定します。</sys:String>
+    <sys:String x:Key="Help.Sec5P2">• リトライ設定 (/R /W): ファイル使用中（ロック）時の再試行回数と待機秒数を指定します。（既定: 各1回）</sys:String>
     <sys:String x:Key="Help.Sec5P3">除外ファイル (/XF) &amp; 除外フォルダ (/XD):</sys:String>
-    <sys:String x:Key="Help.Sec5P4">一時ファイルやシステムフォルダを除外できます。（例: *.tmp, ~*, thumbs.db, $RECYCLE.BIN など）</sys:String>
+    <sys:String x:Key="Help.Sec5P4">一時ファイルやシステムフォルダを除外できます。（例: *.tmp, ~*, thumbs.db, $RECYCLE.BIN, .git など）</sys:String>
+
+    <sys:String x:Key="Help.Sec6Title">6. 外観テーマ &amp; 表示言語の切り替え</sys:String>
+    <sys:String x:Key="Help.Sec6P1">• 外観テーマ: 「Windowsのテーマに追従 (既定)」「ライトモード」「ダークモード」から選択できます。Windows OS の設定変更にもリアルタイムに連動します。</sys:String>
+    <sys:String x:Key="Help.Sec6P2">• 表示言語: 「Windowsの言語に追従」「日本語」「English」からいつでも即座に切り替え可能です。</sys:String>
+
+    <sys:String x:Key="Help.Sec7Title">7. 動作ログ &amp; トラブルシューティング</sys:String>
+    <sys:String x:Key="Help.Sec7P1">• 「📋 ログを表示」ボタン: Robocopy の詳細な転送履歴やエラーメッセージをリアルタイムで確認できます。</sys:String>
+    <sys:String x:Key="Help.Sec7P2">• ログの保存: 日別ログファイルが %APPDATA%\WoodStreamFileSync\logs に自動保存されます。「📁 ログフォルダを開く」からアクセスできます。</sys:String>
+    <sys:String x:Key="Help.Sec7P3">• 手動即時同期: いつでも「⚡ 今すぐ同期」ボタンを押してその場で最新状態に同期できます。</sys:String>
 
     <sys:String x:Key="Help.BtnClose">閉じる</sys:String>
 

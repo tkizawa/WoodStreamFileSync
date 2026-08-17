@@ -83,25 +83,25 @@
     <!-- Help Window -->
     <sys:String x:Key="Help.Title">WoodStreamFileSync - User Guide &amp; Manual</sys:String>
     <sys:String x:Key="Help.Header">WoodStreamFileSync User Guide</sys:String>
-    <sys:String x:Key="Help.Subtitle">Feature Overview and Recommended Settings Guide</sys:String>
+    <sys:String x:Key="Help.Subtitle">Feature Overview and Recommended Settings Guide (v1.0.0.0)</sys:String>
 
     <sys:String x:Key="Help.Sec1Title">1. Basic Operations &amp; Taskbar Tray</sys:String>
     <sys:String x:Key="Help.Sec1Desc">This application runs continuously in the Windows taskbar notification tray in the background.</sys:String>
     <sys:String x:Key="Help.Sec1P1">• Double-click tray icon: Opens the Settings window.</sys:String>
-    <sys:String x:Key="Help.Sec1P2">• Right-click tray icon: Displays options to Sync Now, toggle Realtime Watcher, open Settings, view Logs, and Exit.</sys:String>
+    <sys:String x:Key="Help.Sec1P2">• Right-click tray icon: Displays options to Sync Now, toggle Realtime Watcher, open Settings, view Logs, open User Guide, and Exit.</sys:String>
     <sys:String x:Key="Help.Sec1P3">• Close button [X] on Settings: Minimizes the app to the tray rather than terminating it.</sys:String>
     <sys:String x:Key="Help.Sec1P4">• To completely exit the application, select "🚪 Exit" from the tray context menu.</sys:String>
 
     <sys:String x:Key="Help.Sec2Title">2. Source &amp; Destination Folder Paths</sys:String>
     <sys:String x:Key="Help.Sec2P1">• Source Folder: Choose the folder you want to sync/backup from (Browse button supported).</sys:String>
-    <sys:String x:Key="Help.Sec2P2">• Destination Folder: Choose the target folder to copy files to.</sys:String>
+    <sys:String x:Key="Help.Sec2P2">• Destination Folder: Choose the target folder to copy files to (Local drive or NAS/File Server).</sys:String>
     <sys:String x:Key="Help.Sec2ExTitle">💡 Path Examples:</sys:String>
     <sys:String x:Key="Help.Sec2ExLocal">  - Local Drive: C:\Users\YourName\Documents</sys:String>
     <sys:String x:Key="Help.Sec2ExUnc">  - NAS / File Server (UNC Path): \\192.168.1.100\share\backup or \\NAS-SERVER\Folder</sys:String>
 
     <sys:String x:Key="Help.Sec3Title">3. Sync Triggers &amp; Debounce Control</sys:String>
     <sys:String x:Key="Help.Sec3P1">• Periodic Sync: Automatically runs background synchronization at specified minute intervals (e.g., 30 min).</sys:String>
-    <sys:String x:Key="Help.Sec3P2">• Realtime Detection: Detects created, modified, deleted, and renamed files instantly.</sys:String>
+    <sys:String x:Key="Help.Sec3P2">• Realtime Detection: FileSystemWatcher detects created, modified, deleted, and renamed files instantly.</sys:String>
     <sys:String x:Key="Help.Sec3P3">Settle Delay (Debounce Seconds):</sys:String>
     <sys:String x:Key="Help.Sec3P4">Prevents multiple redundant sync executions during heavy or continuous file write activity. Synchronization triggers once after changes remain quiet for the specified seconds (default: 10s).</sys:String>
 
@@ -112,9 +112,18 @@
 
     <sys:String x:Key="Help.Sec5Title">5. Robocopy Sync Options</sys:String>
     <sys:String x:Key="Help.Sec5P1">• Full Mirroring (/MIR): Deletes files in destination that no longer exist in source to maintain exact mirror.</sys:String>
-    <sys:String x:Key="Help.Sec5P2">• Retry Options (/R /W): Specifies retry counts and wait time when files are temporarily locked.</sys:String>
+    <sys:String x:Key="Help.Sec5P2">• Retry Options (/R /W): Specifies retry counts and wait time when files are temporarily locked (default: 1 each).</sys:String>
     <sys:String x:Key="Help.Sec5P3">Exclude Files (/XF) &amp; Dirs (/XD):</sys:String>
-    <sys:String x:Key="Help.Sec5P4">Excludes temporary or system files (e.g., *.tmp, ~*, thumbs.db, $RECYCLE.BIN, etc.).</sys:String>
+    <sys:String x:Key="Help.Sec5P4">Excludes temporary or system files (e.g., *.tmp, ~*, thumbs.db, $RECYCLE.BIN, .git, etc.).</sys:String>
+
+    <sys:String x:Key="Help.Sec6Title">6. Appearance Themes &amp; Display Language</sys:String>
+    <sys:String x:Key="Help.Sec6P1">• Appearance Themes: Select from "Follow Windows Theme (Default)", "Light Mode", or "Dark Mode". Dynamically syncs with Windows OS theme changes.</sys:String>
+    <sys:String x:Key="Help.Sec6P2">• Display Language: Instantly switch between "Follow Windows Language", "Japanese", or "English" at any time.</sys:String>
+
+    <sys:String x:Key="Help.Sec7Title">7. Operation Logs &amp; Troubleshooting</sys:String>
+    <sys:String x:Key="Help.Sec7P1">• "📋 View Logs" button: Inspect detailed transfer history and Robocopy error messages in real time.</sys:String>
+    <sys:String x:Key="Help.Sec7P2">• Daily Log Storage: Log files are automatically saved daily to %APPDATA%\WoodStreamFileSync\logs. Click "📁 Open Log Folder" to view.</sys:String>
+    <sys:String x:Key="Help.Sec7P3">• Manual Instant Sync: Press "⚡ Sync Now" to immediately synchronize folders to the latest state.</sys:String>
 
     <sys:String x:Key="Help.BtnClose">Close</sys:String>
 
