@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>WoodStreamFileSync</RootNamespace>
+    <AssemblyName>WoodStreamFileSync</AssemblyName>
+    <ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
+    <DefaultItemExcludes>$(DefaultItemExcludes);WoodStreamFileSync.Tests\**</DefaultItemExcludes>
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0.0</InformationalVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\app_icon.ico" />
+    <Resource Include="Resources\app_icon.png" />
+    <Resource Include="Resources\sync_idle.ico" />
+    <Resource Include="Resources\sync_active.ico" />
+    <Resource Include="Resources\sync_error.ico" />
+  </ItemGroup>
+
+</Project>

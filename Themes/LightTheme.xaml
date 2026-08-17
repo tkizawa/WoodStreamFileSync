@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Light Theme Palette -->
+    <SolidColorBrush x:Key="Theme.Window.Background" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Theme.Header.Background" Color="#1E293B"/>
+    <SolidColorBrush x:Key="Theme.Header.Text" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Header.SubText" Color="#94A3B8"/>
+
+    <SolidColorBrush x:Key="Theme.Card.Background" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Card.Border" Color="#E5E7EB"/>
+    <Color x:Key="Theme.Card.ShadowColor">#1A000000</Color>
+    <SolidColorBrush x:Key="Theme.Card.TitleText" Color="#1F2937"/>
+
+    <SolidColorBrush x:Key="Theme.Text.Primary" Color="#1F2937"/>
+    <SolidColorBrush x:Key="Theme.Text.Secondary" Color="#4B5563"/>
+    <SolidColorBrush x:Key="Theme.Text.Muted" Color="#6B7280"/>
+
+    <SolidColorBrush x:Key="Theme.Input.Background" Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="Theme.Input.Foreground" Color="#111827"/>
+    <SolidColorBrush x:Key="Theme.Input.Border" Color="#D1D5DB"/>
+
+    <SolidColorBrush x:Key="Theme.Button.SecondaryBackground" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Theme.Button.SecondaryForeground" Color="#374151"/>
+    <SolidColorBrush x:Key="Theme.Button.SecondaryBorder" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="Theme.Button.SecondaryHover" Color="#E5E7EB"/>
+
+    <SolidColorBrush x:Key="Theme.Border.Separator" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="Theme.BottomBar.Background" Color="#FFFFFF"/>
+
+    <SolidColorBrush x:Key="Theme.Log.Background" Color="#0F172A"/>
+    <SolidColorBrush x:Key="Theme.Log.Foreground" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="Theme.Log.SelectedBackground" Color="#334155"/>
+
+    <SolidColorBrush x:Key="Theme.StatusBadge.Background" Color="#334155"/>
+    <SolidColorBrush x:Key="Theme.StatusBadge.Text" Color="#FFFFFF"/>
+
+</ResourceDictionary>

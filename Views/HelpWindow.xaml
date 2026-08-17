@@ -1,0 +1,203 @@
+<Window x:Class="WoodStreamFileSync.Views.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="{DynamicResource Help.Title}"
+        Height="680" Width="800"
+        MinHeight="500" MinWidth="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Theme.Window.Background}"
+        Foreground="{DynamicResource Theme.Text.Primary}"
+        FontFamily="Segoe UI, Meiryo UI, sans-serif"
+        FontSize="13"
+        Icon="/Resources/app_icon.ico">
+
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Card.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource Theme.Card.Background}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Margin="{TemplateBinding Margin}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="1" Direction="270"
+                                                  Color="{DynamicResource Theme.Card.ShadowColor}" Opacity="0.12"/>
+                            </Border.Effect>
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <ContentPresenter Grid.Row="0" ContentSource="Header" RecognizesAccessKey="True" Margin="0,0,0,12"/>
+                                <ContentPresenter Grid.Row="1"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Background" Value="{DynamicResource Theme.Button.SecondaryBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Button.SecondaryForeground}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Button.SecondaryBorder}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.Button.SecondaryHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource Theme.Header.Background}" Padding="20,16">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="38" Height="38" CornerRadius="8" Margin="0,0,12,0" ClipToBounds="True">
+                        <Image Source="/Resources/app_icon.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Help.Header}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Theme.Header.Text}"/>
+                        <TextBlock Text="{DynamicResource Help.Subtitle}" FontSize="11" Foreground="{DynamicResource Theme.Header.SubText}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Guide Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+            <StackPanel>
+
+                <!-- 1. 基本概要 & タスクトレイ常駐 -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🚀" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec1Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec1Desc}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Help.Sec1P1}" Margin="8,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Help.Sec1P2}" Margin="8,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Help.Sec1P3}" Margin="8,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Help.Sec1P4}" Margin="8,0,0,0" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 2. フォルダ設定 -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📁" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec2Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec2P1}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec2P2}" Margin="0,0,0,6"/>
+                        <Border Background="{DynamicResource Theme.Input.Background}" BorderBrush="{DynamicResource Theme.Input.Border}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Help.Sec2ExTitle}" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Text.Primary}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{DynamicResource Help.Sec2ExLocal}" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                                <TextBlock Text="{DynamicResource Help.Sec2ExUnc}" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 3. 同期モード & デバウンス -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏱️" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec3Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec3P1}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec3P2}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec3P3}" FontWeight="SemiBold" Margin="0,4,0,2"/>
+                        <TextBlock Text="{DynamicResource Help.Sec3P4}" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Text.Secondary}" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 4. NAS認証 -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔐" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec4Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec4P1}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec4P2}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec4P3}" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Text.Secondary}" Margin="0,0,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 5. Robocopy オプション -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec5Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec5P1}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec5P2}" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec5P3}" FontWeight="SemiBold" Margin="0,4,0,2"/>
+                        <TextBlock Text="{DynamicResource Help.Sec5P4}" Foreground="{DynamicResource Theme.Text.Secondary}" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Bottom Action Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource Theme.BottomBar.Background}"
+                BorderBrush="{DynamicResource Theme.Border.Separator}" BorderThickness="0,1,0,0" Padding="20,12">
+            <Button Content="{DynamicResource Help.BtnClose}" HorizontalAlignment="Right" Click="OnCloseClicked" Width="100"/>
+        </Border>
+    </Grid>
+</Window>

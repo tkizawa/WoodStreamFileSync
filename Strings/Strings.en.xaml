@@ -1,0 +1,121 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- App Common -->
+    <sys:String x:Key="App.Title">WoodStreamFileSync</sys:String>
+    <sys:String x:Key="App.Subtitle">Robocopy &amp; NAS Background Synchronization Engine</sys:String>
+
+    <!-- Tray Context Menu -->
+    <sys:String x:Key="Tray.SyncNow">⚡ Sync Now</sys:String>
+    <sys:String x:Key="Tray.RealtimeSync">👁️ Enable/Disable Realtime Watcher</sys:String>
+    <sys:String x:Key="Tray.Settings">⚙️ Settings...</sys:String>
+    <sys:String x:Key="Tray.Logs">📋 View Logs...</sys:String>
+    <sys:String x:Key="Tray.Help">❓ User Guide...</sys:String>
+    <sys:String x:Key="Tray.Exit">🚪 Exit</sys:String>
+    <sys:String x:Key="Tray.StartedTitle">WoodStreamFileSync Running</sys:String>
+    <sys:String x:Key="Tray.StartedMessage">Monitoring and synchronizing folders in the background.</sys:String>
+
+    <!-- Status Messages -->
+    <sys:String x:Key="Status.Idle">Idle</sys:String>
+    <sys:String x:Key="Status.Syncing">Syncing...</sys:String>
+    <sys:String x:Key="Status.Success">Sync Completed (Up to date)</sys:String>
+    <sys:String x:Key="Status.Warning">Warning / Incomplete</sys:String>
+    <sys:String x:Key="Status.Error">Sync Error</sys:String>
+
+    <!-- Settings Window -->
+    <sys:String x:Key="Settings.Title">WoodStreamFileSync - Folder Sync Settings</sys:String>
+    <sys:String x:Key="Settings.FoldersGroup">📁 Sync Folder Configuration</sys:String>
+    <sys:String x:Key="Settings.SourcePath">Source Folder:</sys:String>
+    <sys:String x:Key="Settings.DestinationPath">Destination:</sys:String>
+    <sys:String x:Key="Settings.Browse">Browse...</sys:String>
+    <sys:String x:Key="Settings.SourceDialogTitle">Select Source Folder</sys:String>
+    <sys:String x:Key="Settings.DestDialogTitle">Select Destination Folder</sys:String>
+
+    <sys:String x:Key="Settings.SyncModeGroup">⏱️ Sync Mode &amp; Triggers</sys:String>
+    <sys:String x:Key="Settings.EnablePeriodic">Enable Periodic Sync</sys:String>
+    <sys:String x:Key="Settings.IntervalLabel">Interval:</sys:String>
+    <sys:String x:Key="Settings.IntervalUnit">min</sys:String>
+    <sys:String x:Key="Settings.EnableRealtime">Realtime Change Detection (FileSystemWatcher)</sys:String>
+    <sys:String x:Key="Settings.DebounceLabel">Settle Delay (Debounce):</sys:String>
+    <sys:String x:Key="Settings.DebounceUnit">sec</sys:String>
+    <sys:String x:Key="Settings.DebounceNote">※ Waits until file write activity ceases for the specified seconds before triggering sync, preventing multiple redundant runs.</sys:String>
+
+    <sys:String x:Key="Settings.NasGroup">🔐 NAS / Network Share Authentication</sys:String>
+    <sys:String x:Key="Settings.EnableNas">Pre-authenticate UNC path (\\server\share) sessions</sys:String>
+    <sys:String x:Key="Settings.Username">Username:</sys:String>
+    <sys:String x:Key="Settings.Password">Password:</sys:String>
+    <sys:String x:Key="Settings.TestConnection">Test Connection</sys:String>
+    <sys:String x:Key="Settings.TestingConnection">Testing connection...</sys:String>
+
+    <sys:String x:Key="Settings.RobocopyGroup">⚙️ Robocopy Sync Options</sys:String>
+    <sys:String x:Key="Settings.Mirror">Full Mirroring (/MIR : Purge destination files not in source)</sys:String>
+    <sys:String x:Key="Settings.IncludeEmptySubdirs">Include Empty Subdirectories (/E)</sys:String>
+    <sys:String x:Key="Settings.RetryCount">Retry Count (/R):</sys:String>
+    <sys:String x:Key="Settings.WaitTime">Retry Wait Seconds (/W):</sys:String>
+    <sys:String x:Key="Settings.ExcludeFiles">Exclude Files (/XF):</sys:String>
+    <sys:String x:Key="Settings.ExcludeDirs">Exclude Dirs (/XD):</sys:String>
+    <sys:String x:Key="Settings.AdditionalArgs">Additional Arguments:</sys:String>
+
+    <sys:String x:Key="Settings.AppGroup">💻 Appearance Theme &amp; Application Behavior</sys:String>
+    <sys:String x:Key="Settings.ThemeLabel">Theme:</sys:String>
+    <sys:String x:Key="Settings.LanguageLabel">Language:</sys:String>
+    <sys:String x:Key="Settings.LaunchStartup">Start automatically when Windows boots</sys:String>
+    <sys:String x:Key="Settings.MinimizeOnClose">Minimize to taskbar tray on close [X]</sys:String>
+    <sys:String x:Key="Settings.NotifyError">Show desktop notification on sync errors</sys:String>
+    <sys:String x:Key="Settings.NotifySuccess">Show notification on every successful sync</sys:String>
+
+    <sys:String x:Key="Settings.BtnLogs">📋 View Logs</sys:String>
+    <sys:String x:Key="Settings.BtnHelp">❓ User Guide</sys:String>
+    <sys:String x:Key="Settings.BtnSyncNow">⚡ Sync Now</sys:String>
+    <sys:String x:Key="Settings.BtnSave">💾 Save Settings</sys:String>
+    <sys:String x:Key="Settings.BtnClose">Close</sys:String>
+
+    <!-- Logs Window -->
+    <sys:String x:Key="Logs.Title">WoodStreamFileSync - Operation Logs</sys:String>
+    <sys:String x:Key="Logs.Header">Sync Logs &amp; Execution History</sys:String>
+    <sys:String x:Key="Logs.AutoScroll">Auto-scroll to newest log</sys:String>
+    <sys:String x:Key="Logs.BtnCopy">📋 Copy All</sys:String>
+    <sys:String x:Key="Logs.BtnClear">🗑️ Clear</sys:String>
+    <sys:String x:Key="Logs.BtnOpenFolder">📁 Open Log Folder</sys:String>
+    <sys:String x:Key="Logs.BtnClose">Close</sys:String>
+
+    <!-- Help Window -->
+    <sys:String x:Key="Help.Title">WoodStreamFileSync - User Guide &amp; Manual</sys:String>
+    <sys:String x:Key="Help.Header">WoodStreamFileSync User Guide</sys:String>
+    <sys:String x:Key="Help.Subtitle">Feature Overview and Recommended Settings Guide</sys:String>
+
+    <sys:String x:Key="Help.Sec1Title">1. Basic Operations &amp; Taskbar Tray</sys:String>
+    <sys:String x:Key="Help.Sec1Desc">This application runs continuously in the Windows taskbar notification tray in the background.</sys:String>
+    <sys:String x:Key="Help.Sec1P1">• Double-click tray icon: Opens the Settings window.</sys:String>
+    <sys:String x:Key="Help.Sec1P2">• Right-click tray icon: Displays options to Sync Now, toggle Realtime Watcher, open Settings, view Logs, and Exit.</sys:String>
+    <sys:String x:Key="Help.Sec1P3">• Close button [X] on Settings: Minimizes the app to the tray rather than terminating it.</sys:String>
+    <sys:String x:Key="Help.Sec1P4">• To completely exit the application, select "🚪 Exit" from the tray context menu.</sys:String>
+
+    <sys:String x:Key="Help.Sec2Title">2. Source &amp; Destination Folder Paths</sys:String>
+    <sys:String x:Key="Help.Sec2P1">• Source Folder: Choose the folder you want to sync/backup from (Browse button supported).</sys:String>
+    <sys:String x:Key="Help.Sec2P2">• Destination Folder: Choose the target folder to copy files to.</sys:String>
+    <sys:String x:Key="Help.Sec2ExTitle">💡 Path Examples:</sys:String>
+    <sys:String x:Key="Help.Sec2ExLocal">  - Local Drive: C:\Users\YourName\Documents</sys:String>
+    <sys:String x:Key="Help.Sec2ExUnc">  - NAS / File Server (UNC Path): \\192.168.1.100\share\backup or \\NAS-SERVER\Folder</sys:String>
+
+    <sys:String x:Key="Help.Sec3Title">3. Sync Triggers &amp; Debounce Control</sys:String>
+    <sys:String x:Key="Help.Sec3P1">• Periodic Sync: Automatically runs background synchronization at specified minute intervals (e.g., 30 min).</sys:String>
+    <sys:String x:Key="Help.Sec3P2">• Realtime Detection: Detects created, modified, deleted, and renamed files instantly.</sys:String>
+    <sys:String x:Key="Help.Sec3P3">Settle Delay (Debounce Seconds):</sys:String>
+    <sys:String x:Key="Help.Sec3P4">Prevents multiple redundant sync executions during heavy or continuous file write activity. Synchronization triggers once after changes remain quiet for the specified seconds (default: 10s).</sys:String>
+
+    <sys:String x:Key="Help.Sec4Title">4. NAS / Network Share Authentication</sys:String>
+    <sys:String x:Key="Help.Sec4P1">• When accessing UNC paths (\\server\share), a network session is established before synchronization starts.</sys:String>
+    <sys:String x:Key="Help.Sec4P2">• "Test Connection" button: Instantly verifies reachability and credentials against the NAS.</sys:String>
+    <sys:String x:Key="Help.Sec4P3">• Security: Credentials are securely encrypted using Windows DPAPI (CurrentUser scope) and cannot be decrypted on other computers.</sys:String>
+
+    <sys:String x:Key="Help.Sec5Title">5. Robocopy Sync Options</sys:String>
+    <sys:String x:Key="Help.Sec5P1">• Full Mirroring (/MIR): Deletes files in destination that no longer exist in source to maintain exact mirror.</sys:String>
+    <sys:String x:Key="Help.Sec5P2">• Retry Options (/R /W): Specifies retry counts and wait time when files are temporarily locked.</sys:String>
+    <sys:String x:Key="Help.Sec5P3">Exclude Files (/XF) &amp; Dirs (/XD):</sys:String>
+    <sys:String x:Key="Help.Sec5P4">Excludes temporary or system files (e.g., *.tmp, ~*, thumbs.db, $RECYCLE.BIN, etc.).</sys:String>
+
+    <sys:String x:Key="Help.BtnClose">Close</sys:String>
+
+</ResourceDictionary>
