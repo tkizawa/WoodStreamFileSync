@@ -122,7 +122,7 @@
 
     <sys:String x:Key="Help.Sec7Title">7. 動作ログ &amp; トラブルシューティング</sys:String>
     <sys:String x:Key="Help.Sec7P1">• 「📋 ログを表示」ボタン: Robocopy の詳細な転送履歴やエラーメッセージをリアルタイムで確認できます。</sys:String>
-    <sys:String x:Key="Help.Sec7P2">• ログの保存: 日別ログファイルが %APPDATA%\WoodStreamFileSync\logs に自動保存されます。「📁 ログフォルダを開く」からアクセスできます。</sys:String>
+    <sys:String x:Key="Help.Sec7P2">• ログの保存: 日別ログファイルが %LOCALAPPDATA%\WoodStreamFileSync\logs に自動保存されます。「📁 ログフォルダを開く」からアクセスできます。</sys:String>
     <sys:String x:Key="Help.Sec7P3">• 手動即時同期: いつでも「⚡ 今すぐ同期」ボタンを押してその場で最新状態に同期できます。</sys:String>
 
     <sys:String x:Key="Help.BtnClose">閉じる</sys:String>

@@ -22,16 +22,41 @@ public class ConfigManager
 
     public ConfigManager()
     {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var dir = Path.Combine(appData, "WoodStreamFileSync");
+        // PC固有の設定として管理するため AppData\Local を使用
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var dir = Path.Combine(localAppData, "WoodStreamFileSync");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
         _configFilePath = Path.Combine(dir, "config.json");
+
+        // 以前の Roaming 領域に設定が存在する場合、自動移行
+        MigrateFromRoamingIfNeeded(dir);
     }
 
     public string ConfigFilePath => _configFilePath;
+
+    private void MigrateFromRoamingIfNeeded(string localDir)
+    {
+        try
+        {
+            if (!File.Exists(_configFilePath))
+            {
+                var roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var oldConfig = Path.Combine(roamingAppData, "WoodStreamFileSync", "config.json");
+                if (File.Exists(oldConfig))
+                {
+                    File.Copy(oldConfig, _configFilePath, true);
+                    LoggerService.Instance.LogInfo("以前の設定ファイル (Roaming) を Local 領域へ移行しました。", "ConfigManager");
+                }
+            }
+        }
+        catch
+        {
+            // 移行失敗時は握りつぶす
+        }
+    }
 
     public AppConfig LoadConfig()
     {

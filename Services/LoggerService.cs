@@ -20,8 +20,8 @@ public class LoggerService
 
     public LoggerService()
     {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        _logDirectory = Path.Combine(appData, "WoodStreamFileSync", "logs");
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        _logDirectory = Path.Combine(localAppData, "WoodStreamFileSync", "logs");
         try
         {
             if (!Directory.Exists(_logDirectory))

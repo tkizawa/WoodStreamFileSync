@@ -153,9 +153,11 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 
 ---
 
-## 🔒 セキュリティ仕様
+## 🔒 セキュリティ & 設定保持
+- **設定ファイルの保存先**:
+  - `%LOCALAPPDATA%\WoodStreamFileSync\config.json`（各PC固有のローカル設定として保持）
 - **Windows DPAPI (Data Protection API)**:
-  - NASパスワード文字列は `ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser)` で暗号化され、`%APPDATA%\WoodStreamFileSync\config.json` に保存されます。
+  - NASパスワード文字列は `ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser)` で暗号化され、`config.json` に保存されます。
   - Windows のユーザーアカウント固有の暗号鍵で保護されるため、第三者や別PCへの設定ファイル流出時でも復号できません。
 
 ---

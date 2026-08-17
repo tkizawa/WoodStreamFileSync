@@ -122,7 +122,7 @@
 
     <sys:String x:Key="Help.Sec7Title">7. Operation Logs &amp; Troubleshooting</sys:String>
     <sys:String x:Key="Help.Sec7P1">• "📋 View Logs" button: Inspect detailed transfer history and Robocopy error messages in real time.</sys:String>
-    <sys:String x:Key="Help.Sec7P2">• Daily Log Storage: Log files are automatically saved daily to %APPDATA%\WoodStreamFileSync\logs. Click "📁 Open Log Folder" to view.</sys:String>
+    <sys:String x:Key="Help.Sec7P2">• Daily Log Storage: Log files are automatically saved daily to %LOCALAPPDATA%\WoodStreamFileSync\logs. Click "📁 Open Log Folder" to view.</sys:String>
     <sys:String x:Key="Help.Sec7P3">• Manual Instant Sync: Press "⚡ Sync Now" to immediately synchronize folders to the latest state.</sys:String>
 
     <sys:String x:Key="Help.BtnClose">Close</sys:String>
