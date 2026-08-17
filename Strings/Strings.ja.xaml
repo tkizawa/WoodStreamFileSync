@@ -125,6 +125,12 @@
     <sys:String x:Key="Help.Sec7P2">• ログの保存: 日別ログファイルが %LOCALAPPDATA%\WoodStreamFileSync\logs に自動保存されます。「📁 ログフォルダを開く」からアクセスできます。</sys:String>
     <sys:String x:Key="Help.Sec7P3">• 手動即時同期: いつでも「⚡ 今すぐ同期」ボタンを押してその場で最新状態に同期できます。</sys:String>
 
+    <sys:String x:Key="Help.Sec8Title">⚠️ ご利用上の注意事項 &amp; 免責事項</sys:String>
+    <sys:String x:Key="Help.Sec8P1">1. 同期エンジンに Robocopy を使用: 本ツールは Windows 標準の robocopy.exe を用いて同期します。特に完全ミラーリング (/MIR) 有効時は、同期元にないファイルが同期先から自動削除されます。フォルダ指定には十分ご注意ください。</sys:String>
+    <sys:String x:Key="Help.Sec8P2">2. 無保証 (AS-IS): 本ソフトウェアは無保証で提供されます。明示的・黙示的を問わず、いかなる保証もいたしません。</sys:String>
+    <sys:String x:Key="Help.Sec8P3">3. テスト環境での事前検証: 重要な実データに適用する前に、必ず影響のないテストフォルダ等で同期・削除の動作をご確認ください。</sys:String>
+    <sys:String x:Key="Help.Sec8P4">4. 免責事項: 本ツールの使用や設定ミス等により生じたいかなる損害（データの消失、破損、業務中断等を含む）について、開発者は一切の責任を負いません。</sys:String>
+
     <sys:String x:Key="Help.BtnClose">閉じる</sys:String>
 
 </ResourceDictionary>

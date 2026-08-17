@@ -125,6 +125,12 @@
     <sys:String x:Key="Help.Sec7P2">• Daily Log Storage: Log files are automatically saved daily to %LOCALAPPDATA%\WoodStreamFileSync\logs. Click "📁 Open Log Folder" to view.</sys:String>
     <sys:String x:Key="Help.Sec7P3">• Manual Instant Sync: Press "⚡ Sync Now" to immediately synchronize folders to the latest state.</sys:String>
 
+    <sys:String x:Key="Help.Sec8Title">⚠️ Important Notice &amp; Disclaimer</sys:String>
+    <sys:String x:Key="Help.Sec8P1">1. Powered by Robocopy: This tool executes robocopy.exe for file synchronization. Especially when Mirroring (/MIR) is enabled, destination files missing in source are automatically purged. Please double-check folder paths carefully.</sys:String>
+    <sys:String x:Key="Help.Sec8P2">2. No Warranty (AS-IS): This software is provided "as is" without warranty of any kind, express or implied.</sys:String>
+    <sys:String x:Key="Help.Sec8P3">3. Pre-test Verification: Always test synchronization behavior on non-critical test folders before using on production data.</sys:String>
+    <sys:String x:Key="Help.Sec8P4">4. Limitation of Liability: The developer shall not be liable for any damages (including data loss, corruption, or business disruption) arising from the use of this software.</sys:String>
+
     <sys:String x:Key="Help.BtnClose">Close</sys:String>
 
 </ResourceDictionary>

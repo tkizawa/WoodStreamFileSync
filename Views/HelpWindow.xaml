@@ -220,6 +220,22 @@
                     </StackPanel>
                 </GroupBox>
 
+                <!-- 8. 注意事項 & 免責事項 -->
+                <GroupBox BorderBrush="#F59E0B">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠️" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.Sec8Title}" FontWeight="Bold" FontSize="14" Foreground="#D97706"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.Sec8P1}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec8P2}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec8P3}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.Sec8P4}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </GroupBox>
+
             </StackPanel>
         </ScrollViewer>
 
