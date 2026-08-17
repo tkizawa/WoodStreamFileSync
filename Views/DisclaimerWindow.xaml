@@ -1,0 +1,158 @@
+<Window x:Class="WoodStreamFileSync.Views.DisclaimerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="{DynamicResource Disclaimer.Title}"
+        Height="580" Width="720"
+        MinHeight="480" MinWidth="580"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Theme.Window.Background}"
+        Foreground="{DynamicResource Theme.Text.Primary}"
+        FontFamily="Segoe UI, Meiryo UI, sans-serif"
+        FontSize="13"
+        Icon="/Resources/app_icon.ico">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Button.SecondaryBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Button.SecondaryForeground}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Button.SecondaryBorder}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.Button.SecondaryHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Disclaimer Body -->
+            <RowDefinition Height="Auto"/> <!-- Agreement and Actions -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource Theme.Header.Background}" Padding="20,16">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="38" Height="38" CornerRadius="8" Margin="0,0,12,0" ClipToBounds="True">
+                        <Image Source="/Resources/app_icon.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                            <TextBlock Text="{DynamicResource Disclaimer.Header}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Theme.Header.Text}"/>
+                            <TextBlock Text=" ⚠️" FontSize="16" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="{DynamicResource Disclaimer.Subtitle}" FontSize="11" Foreground="{DynamicResource Theme.Header.SubText}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+            <Border Background="{DynamicResource Theme.Card.Background}"
+                    BorderBrush="#F59E0B" BorderThickness="1.5" CornerRadius="8" Padding="18">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Direction="270" Color="{DynamicResource Theme.Card.ShadowColor}" Opacity="0.15"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Help.Sec8P1}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+                    <TextBlock Text="{DynamicResource Help.Sec8P2}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+                    <TextBlock Text="{DynamicResource Help.Sec8P3}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+                    <TextBlock Text="{DynamicResource Help.Sec8P4}" TextWrapping="Wrap" LineHeight="20" FontWeight="SemiBold" Foreground="#DC2626"/>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- Agreement Checkbox and Action Buttons -->
+        <Border Grid.Row="2" Background="{DynamicResource Theme.BottomBar.Background}"
+                BorderBrush="{DynamicResource Theme.Border.Separator}" BorderThickness="0,1,0,0" Padding="24,14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Checkbox -->
+                <CheckBox x:Name="AgreeCheckBox" Grid.Row="0"
+                          Content="{DynamicResource Disclaimer.Checkbox}"
+                          FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,0,14"/>
+
+                <!-- Buttons -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="1" Content="{DynamicResource Disclaimer.BtnDecline}"
+                            Click="OnDeclineClicked" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0"/>
+
+                    <Button Grid.Column="2" Content="{DynamicResource Disclaimer.BtnAccept}"
+                            Click="OnAcceptClicked" Style="{StaticResource SuccessButton}"
+                            IsEnabled="{Binding ElementName=AgreeCheckBox, Path=IsChecked}"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

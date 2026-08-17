@@ -60,6 +60,25 @@ public partial class App : Application
             Dispatcher.Invoke(() => SetupTrayIcon());
         };
 
+        // 初回起動時の免責事項同意チェック
+        if (!config.HasAcceptedDisclaimer)
+        {
+            var disclaimerWindow = new DisclaimerWindow();
+            var accepted = disclaimerWindow.ShowDialog();
+            if (accepted != true || !disclaimerWindow.IsAccepted)
+            {
+                _logger.LogWarning("免責事項に同意されなかったため、アプリケーションを終了します。", "App");
+                _mutex?.ReleaseMutex();
+                _mutex?.Dispose();
+                Shutdown();
+                return;
+            }
+
+            config.HasAcceptedDisclaimer = true;
+            _configManager.SaveConfig(config);
+            _logger.LogInfo("利用上の注意事項・免責事項に同意しました。", "App");
+        }
+
         _syncManager = SyncManager.Instance;
         _syncManager.Initialize(config);
 

@@ -175,6 +175,8 @@ public class SettingsViewModel : ViewModelBase
         set => SetProperty(ref _launchAtStartup, value);
     }
 
+    public bool HasAcceptedDisclaimer { get; set; } = false;
+
     public bool MinimizeToTrayOnClose
     {
         get => _minimizeToTrayOnClose;
@@ -294,6 +296,7 @@ public class SettingsViewModel : ViewModelBase
         ExcludeDirs = config.Robocopy.ExcludeDirs;
         ThemeMode = config.ThemeMode;
         LanguageMode = config.LanguageMode;
+        HasAcceptedDisclaimer = config.HasAcceptedDisclaimer;
         LaunchAtStartup = config.LaunchAtStartup;
         MinimizeToTrayOnClose = config.MinimizeToTrayOnClose;
         ShowNotificationOnSuccess = config.ShowNotificationOnSuccess;
@@ -327,6 +330,7 @@ public class SettingsViewModel : ViewModelBase
             },
             ThemeMode = ThemeMode,
             LanguageMode = LanguageMode,
+            HasAcceptedDisclaimer = HasAcceptedDisclaimer,
             LaunchAtStartup = LaunchAtStartup,
             MinimizeToTrayOnClose = MinimizeToTrayOnClose,
             ShowNotificationOnSuccess = ShowNotificationOnSuccess,

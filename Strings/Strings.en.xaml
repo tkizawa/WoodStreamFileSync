@@ -131,6 +131,14 @@
     <sys:String x:Key="Help.Sec8P3">3. Pre-test Verification: Always test synchronization behavior on non-critical test folders before using on production data.</sys:String>
     <sys:String x:Key="Help.Sec8P4">4. Limitation of Liability: The developer shall not be liable for any damages (including data loss, corruption, or business disruption) arising from the use of this software.</sys:String>
 
+    <!-- Disclaimer Window (First Launch) -->
+    <sys:String x:Key="Disclaimer.Title">WoodStreamFileSync - Important Notice &amp; Disclaimer</sys:String>
+    <sys:String x:Key="Disclaimer.Header">Important Notice Before Getting Started</sys:String>
+    <sys:String x:Key="Disclaimer.Subtitle">Please carefully read and agree to the following notices and disclaimer before using this software.</sys:String>
+    <sys:String x:Key="Disclaimer.Checkbox">I have read, understood, and agree to the terms and disclaimer above</sys:String>
+    <sys:String x:Key="Disclaimer.BtnAccept">Accept &amp; Start</sys:String>
+    <sys:String x:Key="Disclaimer.BtnDecline">Decline &amp; Exit</sys:String>
+
     <sys:String x:Key="Help.BtnClose">Close</sys:String>
 
 </ResourceDictionary>

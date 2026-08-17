@@ -131,6 +131,14 @@
     <sys:String x:Key="Help.Sec8P3">3. テスト環境での事前検証: 重要な実データに適用する前に、必ず影響のないテストフォルダ等で同期・削除の動作をご確認ください。</sys:String>
     <sys:String x:Key="Help.Sec8P4">4. 免責事項: 本ツールの使用や設定ミス等により生じたいかなる損害（データの消失、破損、業務中断等を含む）について、開発者は一切の責任を負いません。</sys:String>
 
+    <!-- Disclaimer Window (First Launch) -->
+    <sys:String x:Key="Disclaimer.Title">WoodStreamFileSync - ご利用上の注意事項・免責事項</sys:String>
+    <sys:String x:Key="Disclaimer.Header">ご利用前の重要なお知らせ</sys:String>
+    <sys:String x:Key="Disclaimer.Subtitle">本ソフトウェアをご利用いただく前に、以下の注意事項と免責事項を必ずお読みください。</sys:String>
+    <sys:String x:Key="Disclaimer.Checkbox">上記の内容を理解・確認し、免責事項に同意します</sys:String>
+    <sys:String x:Key="Disclaimer.BtnAccept">同意して開始する</sys:String>
+    <sys:String x:Key="Disclaimer.BtnDecline">同意しない (終了)</sys:String>
+
     <sys:String x:Key="Help.BtnClose">閉じる</sys:String>
 
 </ResourceDictionary>

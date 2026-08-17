@@ -40,6 +40,7 @@ public class AppConfig
     // アプリケーション動作
     public AppTheme ThemeMode { get; set; } = AppTheme.System;
     public AppLanguage LanguageMode { get; set; } = AppLanguage.System;
+    public bool HasAcceptedDisclaimer { get; set; } = false;
     public bool LaunchAtStartup { get; set; } = false;
     public bool MinimizeToTrayOnClose { get; set; } = true;
     public bool ShowNotificationOnSuccess { get; set; } = false;
