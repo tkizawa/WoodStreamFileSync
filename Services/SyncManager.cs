@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WoodStreamFileSync.Models;
@@ -49,9 +51,9 @@ public class SyncManager : IDisposable
 
     public SyncManager()
     {
-        _folderWatcher.ChangeDetectedAndSettled += () =>
+        _folderWatcher.ChangeDetectedForPathAndSettled += (sourcePath) =>
         {
-            _ = ExecuteSyncAsync("リアルタイム検知");
+            _ = ExecuteSyncForSourcePathAsync(sourcePath, "リアルタイム検知");
         };
 
         _folderWatcher.WatcherErrorOccurred += (msg) =>
@@ -69,10 +71,14 @@ public class SyncManager : IDisposable
     {
         _config = config;
 
+        // 有効な同期元フォルダのリストを取得
+        var activePairs = GetActiveFolderPairs();
+        var sourcePaths = activePairs.Select(p => p.SourcePath).Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
+
         // リアルタイム監視の再構成
-        if (config.EnableRealtimeSync && !string.IsNullOrWhiteSpace(config.SourcePath))
+        if (config.EnableRealtimeSync && sourcePaths.Count > 0)
         {
-            _folderWatcher.Start(config.SourcePath, config.DebounceDelaySeconds);
+            _folderWatcher.Start(sourcePaths, config.DebounceDelaySeconds);
         }
         else
         {
@@ -95,6 +101,30 @@ public class SyncManager : IDisposable
         }
     }
 
+    private List<SyncFolderPair> GetActiveFolderPairs()
+    {
+        if (_config.FolderPairs != null && _config.FolderPairs.Count > 0)
+        {
+            return _config.FolderPairs.Where(p => p.IsEnabled).ToList();
+        }
+
+        // 後方互換フォールバック
+        if (!string.IsNullOrWhiteSpace(_config.SourcePath) && !string.IsNullOrWhiteSpace(_config.DestinationPath))
+        {
+            return new List<SyncFolderPair>
+            {
+                new SyncFolderPair
+                {
+                    SourcePath = _config.SourcePath,
+                    DestinationPath = _config.DestinationPath,
+                    IsEnabled = true
+                }
+            };
+        }
+
+        return new List<SyncFolderPair>();
+    }
+
     private void OnPeriodicTimerElapsed(object? state)
     {
         LoggerService.Instance.LogInfo("定期タイマーによる同期を開始します。", "SyncManager");
@@ -106,7 +136,9 @@ public class SyncManager : IDisposable
         _config.EnableRealtimeSync = !_config.EnableRealtimeSync;
         if (_config.EnableRealtimeSync)
         {
-            _folderWatcher.Start(_config.SourcePath, _config.DebounceDelaySeconds);
+            var activePairs = GetActiveFolderPairs();
+            var sourcePaths = activePairs.Select(p => p.SourcePath).Where(p => !string.IsNullOrWhiteSpace(p));
+            _folderWatcher.Start(sourcePaths, _config.DebounceDelaySeconds);
             LoggerService.Instance.LogInfo("リアルタイム監視を有効化しました。", "SyncManager");
         }
         else
@@ -116,18 +148,40 @@ public class SyncManager : IDisposable
         }
     }
 
-    public Task<RobocopyResult?> ExecuteSyncAsync(string triggerSource)
+    private async Task ExecuteSyncForSourcePathAsync(string sourcePath, string triggerSource)
     {
-        // 完全にバックグラウンドスレッドで実行し、UIスレッドを一切ブロックしない
+        var activePairs = GetActiveFolderPairs();
+        var matchingPairs = activePairs
+            .Where(p => string.Equals(p.SourcePath.TrimEnd('\\', '/'), sourcePath.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matchingPairs.Count == 0)
+        {
+            await ExecuteSyncAsync(triggerSource);
+            return;
+        }
+
+        foreach (var pair in matchingPairs)
+        {
+            await ExecuteSyncAsync($"{triggerSource} [{pair.DisplayName}]", pair);
+        }
+    }
+
+    public Task<RobocopyResult?> ExecuteSyncAsync(string triggerSource, SyncFolderPair? targetPair = null)
+    {
         return Task.Run(async () =>
         {
-            if (string.IsNullOrWhiteSpace(_config.SourcePath) || string.IsNullOrWhiteSpace(_config.DestinationPath))
+            var pairsToSync = targetPair != null
+                ? new List<SyncFolderPair> { targetPair }
+                : GetActiveFolderPairs();
+
+            if (pairsToSync.Count == 0)
             {
-                LoggerService.Instance.LogWarning("同期元または同期先のフォルダパスが設定されていません。", "SyncManager");
+                LoggerService.Instance.LogWarning("有効な同期フォルダペアが設定されていません。", "SyncManager");
                 return null;
             }
 
-            // 排他ロックの試行 (既に実行中の場合は重複実行を防ぐ)
+            // 排他ロック試行
             if (!await _syncLock.WaitAsync(0))
             {
                 LoggerService.Instance.LogWarning($"別の同期処理が実行中のため、[{triggerSource}] による同期リクエストをスキップしました。", "SyncManager");
@@ -135,66 +189,90 @@ public class SyncManager : IDisposable
             }
 
             CurrentStatus = SyncStatus.Syncing;
-            LoggerService.Instance.LogInfo($"同期を開始します (トリガー: {triggerSource})", "SyncManager");
+            LoggerService.Instance.LogInfo($"同期処理を開始します (対象: {pairsToSync.Count}件, トリガー: {triggerSource})", "SyncManager");
+
+            RobocopyResult? lastResult = null;
+            int successCount = 0;
+            int errorCount = 0;
 
             try
             {
-                // 1. NAS 事前認証 (必要な場合)
-                if (_config.EnableNasAuth)
+                foreach (var pair in pairsToSync)
                 {
-                    if (NasAuthenticator.IsUncPath(_config.DestinationPath))
+                    if (string.IsNullOrWhiteSpace(pair.SourcePath) || string.IsNullOrWhiteSpace(pair.DestinationPath))
                     {
-                        LoggerService.Instance.LogInfo($"同期先NASの事前認証を試行します: {_config.DestinationPath}", "SyncManager");
-                        var authResult = NasAuthenticator.Authenticate(_config.DestinationPath, _config.NasUsername, _config.NasPassword);
-                        if (!authResult.Success)
+                        LoggerService.Instance.LogWarning($"同期パスが未設定のためスキップしました: {pair.DisplayName}", "SyncManager");
+                        continue;
+                    }
+
+                    LoggerService.Instance.LogInfo($"--- 同期開始: {pair.DisplayName} ({pair.SourcePath} -> {pair.DestinationPath}) ---", "SyncManager");
+
+                    // 1. NAS 事前認証 (必要な場合)
+                    if (_config.EnableNasAuth)
+                    {
+                        if (NasAuthenticator.IsUncPath(pair.DestinationPath))
                         {
-                            LoggerService.Instance.LogError($"同期先NASの事前認証に失敗しました: {authResult.Message}", "SyncManager");
+                            LoggerService.Instance.LogInfo($"同期先NASの事前認証を試行します: {pair.DestinationPath}", "SyncManager");
+                            var authResult = NasAuthenticator.Authenticate(pair.DestinationPath, _config.NasUsername, _config.NasPassword);
+                            if (!authResult.Success)
+                            {
+                                LoggerService.Instance.LogError($"同期先NASの事前認証に失敗しました: {authResult.Message}", "SyncManager");
+                            }
+                            else
+                            {
+                                LoggerService.Instance.LogInfo(authResult.Message, "SyncManager");
+                            }
                         }
-                        else
+
+                        if (NasAuthenticator.IsUncPath(pair.SourcePath))
                         {
-                            LoggerService.Instance.LogInfo(authResult.Message, "SyncManager");
+                            LoggerService.Instance.LogInfo($"同期元NASの事前認証を試行します: {pair.SourcePath}", "SyncManager");
+                            var authResult = NasAuthenticator.Authenticate(pair.SourcePath, _config.NasUsername, _config.NasPassword);
+                            if (!authResult.Success)
+                            {
+                                LoggerService.Instance.LogError($"同期元NASの事前認証に失敗しました: {authResult.Message}", "SyncManager");
+                            }
+                            else
+                            {
+                                LoggerService.Instance.LogInfo(authResult.Message, "SyncManager");
+                            }
                         }
                     }
 
-                    if (NasAuthenticator.IsUncPath(_config.SourcePath))
+                    // 2. ディレクトリの事前検証
+                    if (!Directory.Exists(pair.SourcePath))
                     {
-                        LoggerService.Instance.LogInfo($"同期元NASの事前認証を試行します: {_config.SourcePath}", "SyncManager");
-                        var authResult = NasAuthenticator.Authenticate(_config.SourcePath, _config.NasUsername, _config.NasPassword);
-                        if (!authResult.Success)
-                        {
-                            LoggerService.Instance.LogError($"同期元NASの事前認証に失敗しました: {authResult.Message}", "SyncManager");
-                        }
-                        else
-                        {
-                            LoggerService.Instance.LogInfo(authResult.Message, "SyncManager");
-                        }
+                        var errorMsg = $"同期元フォルダが存在しません [{pair.DisplayName}]: {pair.SourcePath}";
+                        LoggerService.Instance.LogError(errorMsg, "SyncManager");
+                        pair.LastSyncStatus = SyncStatus.Error;
+                        errorCount++;
+                        continue;
+                    }
+
+                    // 3. Robocopy 実行
+                    var result = await _robocopyRunner.RunAsync(
+                        pair.SourcePath,
+                        pair.DestinationPath,
+                        _config.Robocopy);
+
+                    lastResult = result;
+                    pair.LastSyncTime = DateTime.Now;
+
+                    if (result.Success)
+                    {
+                        pair.LastSyncStatus = SyncStatus.Success;
+                        successCount++;
+                    }
+                    else
+                    {
+                        pair.LastSyncStatus = SyncStatus.Error;
+                        errorCount++;
                     }
                 }
-
-                // 2. ディレクトリの事前検証
-                if (!Directory.Exists(_config.SourcePath))
-                {
-                    var errorMsg = $"同期元フォルダが存在しません: {_config.SourcePath}";
-                    LoggerService.Instance.LogError(errorMsg, "SyncManager");
-                    CurrentStatus = SyncStatus.Error;
-                    NotificationRequested?.Invoke(this, new SyncNotificationEventArgs
-                    {
-                        Title = "同期エラー",
-                        Message = errorMsg,
-                        IsError = true
-                    });
-                    return null;
-                }
-
-                // 3. Robocopy 実行
-                var result = await _robocopyRunner.RunAsync(
-                    _config.SourcePath,
-                    _config.DestinationPath,
-                    _config.Robocopy);
 
                 _lastSyncTime = DateTime.Now;
 
-                if (result.Success)
+                if (errorCount == 0 && successCount > 0)
                 {
                     CurrentStatus = SyncStatus.Success;
                     if (_config.ShowNotificationOnSuccess)
@@ -202,12 +280,25 @@ public class SyncManager : IDisposable
                         NotificationRequested?.Invoke(this, new SyncNotificationEventArgs
                         {
                             Title = "同期完了",
-                            Message = $"フォルダ同期が完了しました ({result.SummaryMessage})",
+                            Message = $"{successCount} 件のフォルダ同期が完了しました。",
                             IsError = false
                         });
                     }
                 }
-                else
+                else if (errorCount > 0 && successCount > 0)
+                {
+                    CurrentStatus = SyncStatus.Warning;
+                    if (_config.ShowNotificationOnError)
+                    {
+                        NotificationRequested?.Invoke(this, new SyncNotificationEventArgs
+                        {
+                            Title = "同期一部完了・警告",
+                            Message = $"成功: {successCount}件, エラー: {errorCount}件 でした。ログを確認してください。",
+                            IsError = true
+                        });
+                    }
+                }
+                else if (errorCount > 0 && successCount == 0)
                 {
                     CurrentStatus = SyncStatus.Error;
                     if (_config.ShowNotificationOnError)
@@ -215,13 +306,17 @@ public class SyncManager : IDisposable
                         NotificationRequested?.Invoke(this, new SyncNotificationEventArgs
                         {
                             Title = "同期エラー",
-                            Message = $"Robocopy でエラーが発生しました: {result.SummaryMessage}",
+                            Message = "すべてのフォルダ同期でエラーが発生しました。",
                             IsError = true
                         });
                     }
                 }
+                else
+                {
+                    CurrentStatus = SyncStatus.Idle;
+                }
 
-                return result;
+                return lastResult;
             }
             catch (Exception ex)
             {

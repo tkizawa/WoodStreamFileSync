@@ -24,9 +24,11 @@
   - 普段はタスクトレイ（通知領域）に格納され、システムリソースをほとんど消費しません。
   - トレイアイコンのダブルクリックで設定画面をいつでも素早く開くことができます。
   - ウィンドウの `[X]` 閉じるボタンを押しても終了せず、トレイ常駐を維持します。
+- **📁 複数フォルダペアの同期設定 & 個別管理**:
+  - 複数の同期元・同期先フォルダペアを登録可能。各ペアごとに同期の有効/無効、個別手動同期、削除を柔軟に操作できます。
 - **⏱️ ハイブリッド同期トリガー**:
-  - **定期タイマー同期**: 5分、10分、15分、30分、60分、120分など指定インターバルで定期同期。
-  - **リアルタイム変更検知**: `FileSystemWatcher` により、ファイルの作成・変更・削除・リネームをリアルタイム監視。
+  - **定期タイマー同期**: 5分、10分、15分、30分、60分、120分など指定インターバルで登録中の全フォルダを定期同期。
+  - **リアルタイム変更検知**: 複数の同期元フォルダを `FileSystemWatcher` で同時監視。ファイル変更のあったフォルダペアのみをピンポイントで同期可能。
   - **デバウンス制御**: 連続ファイル書き込みや大量ファイルコピー中に多重起動しないよう、更新が落ち着いてから1回だけ安全に同期を実行。
 - **🔐 NAS / ネットワーク事前認証 (UNCパス対応)**:
   - `\\server\share` などの UNC パスへのアクセス時、同期直前に Windows API (`mpr.dll` の `WNetAddConnection2`) を呼び出して自動的にセッションを確立。
@@ -60,22 +62,24 @@ WoodStreamFileSync/
 ├── App.xaml / App.xaml.cs          # アプリケーションエントリ、トレイ常駐、Mutex単一インスタンス
 ├── Models/
 │   ├── AppConfig.cs                # 設定データモデル (Robocopyオプション含む)
+│   ├── SyncFolderPair.cs           # 同期フォルダペアモデル (Id, Name, Source, Dest, IsEnabled)
 │   ├── AppTheme.cs                 # テーマ列挙型 (System, Light, Dark)
 │   ├── AppLanguage.cs              # 言語列挙型 (System, Japanese, English)
 │   ├── SyncLogEntry.cs             # ログモデル (LogLevel, Timestamp, Message)
 │   └── SyncStatus.cs               # 同期ステータス (Idle, Syncing, Success, Error)
 ├── Services/
-│   ├── ConfigManager.cs            # JSON設定管理 + DPAPI暗号化/復号 + スタートアップ登録
+│   ├── ConfigManager.cs            # JSON設定管理 + DPAPI暗号化/復号 + スタートアップ登録 + 移行処理
 │   ├── LocalizationService.cs      # 多言語管理サービス (日本語 / 英語)
 │   ├── ThemeService.cs             # テーマ管理 & Windowsダークタイトルバー連携
 │   ├── NasAuthenticator.cs        # WNetAddConnection2 によるNAS認証 & 接続テスト
 │   ├── RobocopyRunner.cs           # Robocopy非同期実行・引数構築・終了コード判定
-│   ├── FolderWatcherService.cs     # FileSystemWatcher + デバウンス制御
-│   ├── SyncManager.cs              # 排他制御 SemaphoreSlim、同期調停、トレイ通知
+│   ├── FolderWatcherService.cs     # 複数ディレクトリ FileSystemWatcher + デバウンス制御
+│   ├── SyncManager.cs              # 排他制御 SemaphoreSlim、複数フォルダ同期調停、トレイ通知
 │   └── LoggerService.cs            # ログイベント配信 + 日別ログファイル出力
 ├── ViewModels/
 │   ├── ViewModelBase.cs            # MVVM基底クラス & RelayCommand / AsyncRelayCommand
-│   ├── SettingsViewModel.cs        # 設定画面 ViewModel
+│   ├── SettingsViewModel.cs        # 設定画面 ViewModel (複数ペアリスト管理)
+│   ├── FolderPairViewModel.cs      # フォルダペア単体 ViewModel
 │   └── LogViewModel.cs             # ログ画面 ViewModel
 ├── Views/
 │   ├── Converters.cs               # XAMLバリューコンバーター & PasswordBoxHelper

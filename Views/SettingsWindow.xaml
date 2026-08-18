@@ -216,30 +216,135 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
             <StackPanel>
 
-                <!-- 1. フォルダ設定 -->
+                <!-- 1. 複数同期フォルダ設定 -->
                 <GroupBox Header="{DynamicResource Settings.FoldersGroup}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <!-- リストヘッダー & アクションボタン -->
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Settings.FolderPairsList}" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                            <Button Content="{DynamicResource Settings.AddPair}" Command="{Binding AddFolderPairCommand}"
+                                    HorizontalAlignment="Right" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,2"/>
+                        </Grid>
 
-                        <!-- Source -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings.SourcePath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,8,4" Height="32"/>
-                        <Button Grid.Row="0" Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseSourceCommand}" Style="{StaticResource SecondaryButton}" Height="32" Margin="0,4,0,4"/>
+                        <!-- フォルダペア一覧リスト -->
+                        <Border BorderBrush="{DynamicResource Theme.Input.Border}" BorderThickness="1" CornerRadius="6"
+                                Background="{DynamicResource Theme.Input.Background}" Margin="0,0,0,12" MaxHeight="180">
+                            <ListBox ItemsSource="{Binding FolderPairs}" SelectedItem="{Binding SelectedFolderPair}"
+                                     Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="8,6"/>
+                                        <Setter Property="Margin" Value="2"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource Theme.Button.SecondaryHover}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="ItemBorder" Property="Background" Value="#1A2563EB"/>
+                                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#2563EB"/>
+                                                            <Setter TargetName="ItemBorder" Property="BorderThickness" Value="1"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                        <!-- Destination -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings.DestinationPath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}" Margin="0,8,0,0"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,8,0" Height="32"
-                                 ToolTip="Local path or UNC path (\\server\share\path)"/>
-                        <Button Grid.Row="1" Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseDestinationCommand}" Style="{StaticResource SecondaryButton}" Height="32" Margin="0,8,0,0"/>
-                    </Grid>
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="{DynamicResource Theme.Text.Primary}"/>
+                                                <TextBlock TextTrimming="CharacterEllipsis" FontSize="11" Foreground="{DynamicResource Theme.Text.Muted}" Margin="0,2,0,0">
+                                                    <Run Text="{Binding SourcePath, FallbackValue='(同期元未設定)'}"/>
+                                                    <Run Text=" ➔ "/>
+                                                    <Run Text="{Binding DestinationPath, FallbackValue='(同期先未設定)'}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="2" Content="{DynamicResource Settings.PairSyncNow}"
+                                                    Command="{Binding DataContext.SyncSinglePairCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    FontSize="11" Height="26" Padding="8,0" Margin="8,0,4,0"/>
+
+                                            <Button Grid.Column="3" Content="{DynamicResource Settings.DeletePair}"
+                                                    Command="{Binding DataContext.RemoveFolderPairCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Foreground="#DC2626"
+                                                    FontSize="11" Height="26" Padding="8,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+
+                        <!-- 選択中ペアの詳細編集エリア -->
+                        <Border BorderBrush="{DynamicResource Theme.Card.Border}" BorderThickness="1" CornerRadius="6"
+                                Background="{DynamicResource Theme.Window.Background}" Padding="12"
+                                Visibility="{Binding SelectedFolderPair, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <StackPanel DataContext="{Binding SelectedFolderPair}">
+                                <!-- ペア名 & 有効化 -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Settings.PairName}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,12,0"/>
+                                    <CheckBox Grid.Column="2" IsChecked="{Binding IsEnabled}" Content="{DynamicResource Settings.PairEnabled}" VerticalAlignment="Center" FontWeight="Medium"/>
+                                </Grid>
+
+                                <!-- Source -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Settings.SourcePath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"/>
+                                    <Button Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseSourceCommand}" Style="{StaticResource SecondaryButton}" Height="30"/>
+                                </Grid>
+
+                                <!-- Destination -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Settings.DestinationPath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"
+                                             ToolTip="Local path or UNC path (\\server\share\path)"/>
+                                    <Button Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseDestinationCommand}" Style="{StaticResource SecondaryButton}" Height="30"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 未選択時のメッセージ -->
+                        <TextBlock Text="{DynamicResource Settings.NoFolderSelected}"
+                                   Visibility="{Binding SelectedFolderPair, Converter={StaticResource BoolToVisibilityConverter}}"
+                                   Foreground="{DynamicResource Theme.Text.Muted}" FontStyle="Italic" Margin="0,4,0,0"/>
+                    </StackPanel>
                 </GroupBox>
 
                 <!-- 2. 同期トリガー & 動作モード -->

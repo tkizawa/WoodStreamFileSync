@@ -25,7 +25,14 @@
 
     <!-- Settings Window -->
     <sys:String x:Key="Settings.Title">WoodStreamFileSync - フォルダ同期設定</sys:String>
-    <sys:String x:Key="Settings.FoldersGroup">📁 同期フォルダ設定</sys:String>
+    <sys:String x:Key="Settings.FoldersGroup">📁 同期フォルダ設定 (複数設定対応)</sys:String>
+    <sys:String x:Key="Settings.FolderPairsList">同期フォルダペア一覧:</sys:String>
+    <sys:String x:Key="Settings.AddPair">＋ フォルダペアを追加</sys:String>
+    <sys:String x:Key="Settings.DeletePair">削除</sys:String>
+    <sys:String x:Key="Settings.PairSyncNow">このペアを同期</sys:String>
+    <sys:String x:Key="Settings.PairName">設定名 / ラベル:</sys:String>
+    <sys:String x:Key="Settings.PairEnabled">このフォルダペアの同期を有効にする</sys:String>
+    <sys:String x:Key="Settings.NoFolderSelected">フォルダ設定が選択されていません。「＋ フォルダペアを追加」をクリックして作成してください。</sys:String>
     <sys:String x:Key="Settings.SourcePath">同期元 (Source):</sys:String>
     <sys:String x:Key="Settings.DestinationPath">同期先 (Dest):</sys:String>
     <sys:String x:Key="Settings.Browse">参照...</sys:String>

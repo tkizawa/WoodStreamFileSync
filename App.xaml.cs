@@ -94,7 +94,10 @@ public partial class App : Application
         _syncManager.NotificationRequested += OnNotificationRequested;
 
         // 初回起動でパスが未設定の場合は設定画面を表示
-        if (string.IsNullOrWhiteSpace(config.SourcePath) || string.IsNullOrWhiteSpace(config.DestinationPath))
+        bool hasConfiguredFolders = config.FolderPairs?.Any(p => !string.IsNullOrWhiteSpace(p.SourcePath) && !string.IsNullOrWhiteSpace(p.DestinationPath)) == true
+                                    || (!string.IsNullOrWhiteSpace(config.SourcePath) && !string.IsNullOrWhiteSpace(config.DestinationPath));
+
+        if (!hasConfiguredFolders)
         {
             ShowSettingsWindow();
         }

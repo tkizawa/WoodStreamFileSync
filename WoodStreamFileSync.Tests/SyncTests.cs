@@ -143,4 +143,69 @@ public class SyncTests
             }
         }
     }
+
+    [Fact]
+    public void Test_SyncFolderPair_DisplayName()
+    {
+        var pair1 = new SyncFolderPair { Name = "MyBackup", SourcePath = @"C:\Folder1" };
+        Assert.Equal("MyBackup", pair1.DisplayName);
+
+        var pair2 = new SyncFolderPair { Name = "", SourcePath = @"C:\Folder1\SubFolder" };
+        Assert.Equal("SubFolder", pair2.DisplayName);
+
+        var pair3 = new SyncFolderPair { Name = "", SourcePath = "" };
+        Assert.Equal("新規フォルダペア", pair3.DisplayName);
+    }
+
+    [Fact]
+    public async Task Test_Multiple_Folder_Sync_Execution()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "WoodStreamMultiSync_" + Guid.NewGuid().ToString("N"));
+        var src1 = Path.Combine(tempRoot, "src1");
+        var dest1 = Path.Combine(tempRoot, "dest1");
+        var src2 = Path.Combine(tempRoot, "src2");
+        var dest2 = Path.Combine(tempRoot, "dest2");
+
+        try
+        {
+            Directory.CreateDirectory(src1);
+            Directory.CreateDirectory(dest1);
+            Directory.CreateDirectory(src2);
+            Directory.CreateDirectory(dest2);
+
+            File.WriteAllText(Path.Combine(src1, "pair1.txt"), "Content Pair 1");
+            File.WriteAllText(Path.Combine(src2, "pair2.txt"), "Content Pair 2");
+
+            var config = new AppConfig
+            {
+                EnableRealtimeSync = false,
+                EnablePeriodicSync = false,
+                FolderPairs = new System.Collections.Generic.List<SyncFolderPair>
+                {
+                    new SyncFolderPair { Name = "Pair 1", SourcePath = src1, DestinationPath = dest1, IsEnabled = true },
+                    new SyncFolderPair { Name = "Pair 2", SourcePath = src2, DestinationPath = dest2, IsEnabled = true }
+                }
+            };
+
+            var syncManager = new SyncManager();
+            syncManager.Initialize(config);
+
+            var result = await syncManager.ExecuteSyncAsync("UnitTest");
+
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.True(File.Exists(Path.Combine(dest1, "pair1.txt")));
+            Assert.True(File.Exists(Path.Combine(dest2, "pair2.txt")));
+            Assert.Equal("Content Pair 1", File.ReadAllText(Path.Combine(dest1, "pair1.txt")));
+            Assert.Equal("Content Pair 2", File.ReadAllText(Path.Combine(dest2, "pair2.txt")));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                try { Directory.Delete(tempRoot, true); } catch { }
+            }
+        }
+    }
 }
+

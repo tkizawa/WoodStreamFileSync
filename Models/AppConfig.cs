@@ -15,8 +15,12 @@ public class RobocopyOptions
 
 public class AppConfig
 {
+    // 単一フォルダ設定 (後方互換用)
     public string SourcePath { get; set; } = "";
     public string DestinationPath { get; set; } = "";
+
+    // 複数同期フォルダペア設定
+    public List<SyncFolderPair> FolderPairs { get; set; } = new();
 
     // 定期同期設定
     public bool EnablePeriodicSync { get; set; } = true;

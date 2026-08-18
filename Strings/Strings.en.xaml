@@ -25,7 +25,14 @@
 
     <!-- Settings Window -->
     <sys:String x:Key="Settings.Title">WoodStreamFileSync - Folder Sync Settings</sys:String>
-    <sys:String x:Key="Settings.FoldersGroup">📁 Sync Folder Configuration</sys:String>
+    <sys:String x:Key="Settings.FoldersGroup">📁 Sync Folder Configuration (Multiple Pairs Supported)</sys:String>
+    <sys:String x:Key="Settings.FolderPairsList">Sync Folder Pairs:</sys:String>
+    <sys:String x:Key="Settings.AddPair">＋ Add Folder Pair</sys:String>
+    <sys:String x:Key="Settings.DeletePair">Delete</sys:String>
+    <sys:String x:Key="Settings.PairSyncNow">Sync This Pair</sys:String>
+    <sys:String x:Key="Settings.PairName">Pair Name / Label:</sys:String>
+    <sys:String x:Key="Settings.PairEnabled">Enable sync for this folder pair</sys:String>
+    <sys:String x:Key="Settings.NoFolderSelected">No folder pair selected. Click "＋ Add Folder Pair" to create one.</sys:String>
     <sys:String x:Key="Settings.SourcePath">Source Folder:</sys:String>
     <sys:String x:Key="Settings.DestinationPath">Destination:</sys:String>
     <sys:String x:Key="Settings.Browse">Browse...</sys:String>

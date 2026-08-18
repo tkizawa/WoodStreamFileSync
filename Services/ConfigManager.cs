@@ -68,6 +68,21 @@ public class ConfigManager
                 var config = JsonSerializer.Deserialize<AppConfig>(json, JsonOptions);
                 if (config != null)
                 {
+                    // 後方互換性マイグレーション: FolderPairsが空で旧設定が存在する場合
+                    if ((config.FolderPairs == null || config.FolderPairs.Count == 0) &&
+                        (!string.IsNullOrWhiteSpace(config.SourcePath) || !string.IsNullOrWhiteSpace(config.DestinationPath)))
+                    {
+                        config.FolderPairs = new List<SyncFolderPair>
+                        {
+                            new SyncFolderPair
+                            {
+                                SourcePath = config.SourcePath,
+                                DestinationPath = config.DestinationPath,
+                                IsEnabled = true
+                            }
+                        };
+                    }
+
                     // DPAPIでパスワードを復号
                     if (!string.IsNullOrEmpty(config.NasPasswordEncrypted))
                     {

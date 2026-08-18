@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -15,8 +16,9 @@ public class SettingsViewModel : ViewModelBase
     private readonly ConfigManager _configManager;
     private readonly SyncManager _syncManager;
 
-    private string _sourcePath = "";
-    private string _destinationPath = "";
+    private ObservableCollection<FolderPairViewModel> _folderPairs = new();
+    private FolderPairViewModel? _selectedFolderPair;
+
     private bool _enablePeriodicSync = true;
     private int _periodicIntervalMinutes = 30;
     private bool _enableRealtimeSync = true;
@@ -43,6 +45,18 @@ public class SettingsViewModel : ViewModelBase
     private bool _isTestingConnection = false;
     private string _statusMessage = "待機中";
     private SyncStatus _currentSyncStatus = SyncStatus.Idle;
+
+    public ObservableCollection<FolderPairViewModel> FolderPairs
+    {
+        get => _folderPairs;
+        set => SetProperty(ref _folderPairs, value);
+    }
+
+    public FolderPairViewModel? SelectedFolderPair
+    {
+        get => _selectedFolderPair;
+        set => SetProperty(ref _selectedFolderPair, value);
+    }
 
     public ObservableCollection<int> IntervalOptions { get; } = new() { 5, 10, 15, 30, 60, 120 };
     public ObservableCollection<AppTheme> ThemeOptions { get; } = new() { AppTheme.System, AppTheme.Light, AppTheme.Dark };
@@ -71,18 +85,6 @@ public class SettingsViewModel : ViewModelBase
                 UpdateStatusText();
             }
         }
-    }
-
-    public string SourcePath
-    {
-        get => _sourcePath;
-        set => SetProperty(ref _sourcePath, value);
-    }
-
-    public string DestinationPath
-    {
-        get => _destinationPath;
-        set => SetProperty(ref _destinationPath, value);
     }
 
     public bool EnablePeriodicSync
@@ -225,8 +227,9 @@ public class SettingsViewModel : ViewModelBase
         set => SetProperty(ref _currentSyncStatus, value);
     }
 
-    public ICommand BrowseSourceCommand { get; }
-    public ICommand BrowseDestinationCommand { get; }
+    public ICommand AddFolderPairCommand { get; }
+    public ICommand RemoveFolderPairCommand { get; }
+    public ICommand SyncSinglePairCommand { get; }
     public ICommand TestNasConnectionCommand { get; }
     public ICommand SaveSettingsCommand { get; }
     public ICommand SyncNowCommand { get; }
@@ -247,8 +250,9 @@ public class SettingsViewModel : ViewModelBase
             });
         };
 
-        BrowseSourceCommand = new RelayCommand(BrowseSource);
-        BrowseDestinationCommand = new RelayCommand(BrowseDestination);
+        AddFolderPairCommand = new RelayCommand(AddFolderPair);
+        RemoveFolderPairCommand = new RelayCommand<FolderPairViewModel>(RemoveFolderPair);
+        SyncSinglePairCommand = new AsyncRelayCommand<FolderPairViewModel>(SyncSinglePairAsync);
         TestNasConnectionCommand = new AsyncRelayCommand(TestNasConnectionAsync);
         SaveSettingsCommand = new RelayCommand(() => SaveSettings(showDialog: true));
         SyncNowCommand = new AsyncRelayCommand(async () =>
@@ -258,6 +262,47 @@ public class SettingsViewModel : ViewModelBase
         });
 
         LoadFromConfig();
+    }
+
+    private void AddFolderPair()
+    {
+        var newPair = new FolderPairViewModel
+        {
+            Name = $"同期設定 {FolderPairs.Count + 1}",
+            IsEnabled = true
+        };
+        FolderPairs.Add(newPair);
+        SelectedFolderPair = newPair;
+    }
+
+    private void RemoveFolderPair(FolderPairViewModel? pair)
+    {
+        var target = pair ?? SelectedFolderPair;
+        if (target == null) return;
+
+        var loc = LocalizationService.Instance;
+        var msg = loc.IsJapanese
+            ? $"「{target.DisplayName}」の設定を削除しますか？"
+            : $"Are you sure you want to remove '{target.DisplayName}'?";
+        var title = loc.IsJapanese ? "削除確認" : "Confirm Delete";
+
+        if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            FolderPairs.Remove(target);
+            if (SelectedFolderPair == target)
+            {
+                SelectedFolderPair = FolderPairs.FirstOrDefault();
+            }
+        }
+    }
+
+    private async Task SyncSinglePairAsync(FolderPairViewModel? pair)
+    {
+        var target = pair ?? SelectedFolderPair;
+        if (target == null) return;
+
+        SaveSettings(showDialog: false);
+        await _syncManager.ExecuteSyncAsync($"手動同期 [{target.DisplayName}]", target.ToModel());
     }
 
     private void UpdateStatusText()
@@ -278,8 +323,29 @@ public class SettingsViewModel : ViewModelBase
     {
         var config = _configManager.LoadConfig();
 
-        SourcePath = config.SourcePath;
-        DestinationPath = config.DestinationPath;
+        FolderPairs.Clear();
+        if (config.FolderPairs != null && config.FolderPairs.Count > 0)
+        {
+            foreach (var pair in config.FolderPairs)
+            {
+                FolderPairs.Add(new FolderPairViewModel(pair));
+            }
+        }
+
+        // 初期状態で何もなければ空のペアを1つ追加
+        if (FolderPairs.Count == 0)
+        {
+            FolderPairs.Add(new FolderPairViewModel
+            {
+                Name = "メイン同期",
+                SourcePath = config.SourcePath,
+                DestinationPath = config.DestinationPath,
+                IsEnabled = true
+            });
+        }
+
+        SelectedFolderPair = FolderPairs.FirstOrDefault();
+
         EnablePeriodicSync = config.EnablePeriodicSync;
         PeriodicIntervalMinutes = config.PeriodicIntervalMinutes;
         EnableRealtimeSync = config.EnableRealtimeSync;
@@ -307,10 +373,12 @@ public class SettingsViewModel : ViewModelBase
 
     public AppConfig ToConfig()
     {
+        var firstPair = FolderPairs.FirstOrDefault();
         return new AppConfig
         {
-            SourcePath = SourcePath.Trim(),
-            DestinationPath = DestinationPath.Trim(),
+            SourcePath = firstPair?.SourcePath.Trim() ?? "",
+            DestinationPath = firstPair?.DestinationPath.Trim() ?? "",
+            FolderPairs = FolderPairs.Select(vm => vm.ToModel()).ToList(),
             EnablePeriodicSync = EnablePeriodicSync,
             PeriodicIntervalMinutes = PeriodicIntervalMinutes,
             EnableRealtimeSync = EnableRealtimeSync,
@@ -364,52 +432,44 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
-    private void BrowseSource()
-    {
-        var loc = LocalizationService.Instance;
-        var dialog = new OpenFolderDialog
-        {
-            Title = loc.GetString("Settings.SourceDialogTitle"),
-            InitialDirectory = Directory.Exists(SourcePath) ? SourcePath : ""
-        };
-        if (dialog.ShowDialog() == true)
-        {
-            SourcePath = dialog.FolderName;
-        }
-    }
-
-    private void BrowseDestination()
-    {
-        var loc = LocalizationService.Instance;
-        var dialog = new OpenFolderDialog
-        {
-            Title = loc.GetString("Settings.DestDialogTitle"),
-            InitialDirectory = Directory.Exists(DestinationPath) ? DestinationPath : ""
-        };
-        if (dialog.ShowDialog() == true)
-        {
-            DestinationPath = dialog.FolderName;
-        }
-    }
-
     private async Task TestNasConnectionAsync()
     {
-        var target = !string.IsNullOrWhiteSpace(DestinationPath) ? DestinationPath : SourcePath;
+        // 選択中または登録済みのペアからUNCパスを探す
+        string target = "";
+        if (SelectedFolderPair != null)
+        {
+            if (NasAuthenticator.IsUncPath(SelectedFolderPair.DestinationPath))
+                target = SelectedFolderPair.DestinationPath;
+            else if (NasAuthenticator.IsUncPath(SelectedFolderPair.SourcePath))
+                target = SelectedFolderPair.SourcePath;
+        }
+
         if (string.IsNullOrWhiteSpace(target))
         {
-            ConnectionTestResult = "同期先または同期元のパスを入力してください。";
+            var uncPair = FolderPairs.FirstOrDefault(p => NasAuthenticator.IsUncPath(p.DestinationPath) || NasAuthenticator.IsUncPath(p.SourcePath));
+            if (uncPair != null)
+            {
+                target = NasAuthenticator.IsUncPath(uncPair.DestinationPath) ? uncPair.DestinationPath : uncPair.SourcePath;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            ConnectionTestResult = LocalizationService.Instance.IsJapanese
+                ? "UNCパス (\\\\server\\share) が設定されている同期フォルダがありません。"
+                : "No folder pair with UNC path (\\\\server\\share) configured.";
             IsConnectionTestSuccess = false;
             return;
         }
 
         IsTestingConnection = true;
-        ConnectionTestResult = "接続テスト中...";
+        ConnectionTestResult = LocalizationService.Instance.GetString("Settings.TestingConnection");
 
         try
         {
             var (success, message) = await NasAuthenticator.TestConnectionAsync(target, NasUsername, NasPassword);
             IsConnectionTestSuccess = success;
-            ConnectionTestResult = message;
+            ConnectionTestResult = $"[{target}] {message}";
         }
         finally
         {
