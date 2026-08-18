@@ -230,6 +230,8 @@ public class SettingsViewModel : ViewModelBase
     public ICommand AddFolderPairCommand { get; }
     public ICommand RemoveFolderPairCommand { get; }
     public ICommand SyncSinglePairCommand { get; }
+    public ICommand BrowseSourceCommand { get; }
+    public ICommand BrowseDestinationCommand { get; }
     public ICommand TestNasConnectionCommand { get; }
     public ICommand SaveSettingsCommand { get; }
     public ICommand SyncNowCommand { get; }
@@ -253,6 +255,8 @@ public class SettingsViewModel : ViewModelBase
         AddFolderPairCommand = new RelayCommand(AddFolderPair);
         RemoveFolderPairCommand = new RelayCommand<FolderPairViewModel>(RemoveFolderPair);
         SyncSinglePairCommand = new AsyncRelayCommand<FolderPairViewModel>(SyncSinglePairAsync);
+        BrowseSourceCommand = new RelayCommand(BrowseSource);
+        BrowseDestinationCommand = new RelayCommand(BrowseDestination);
         TestNasConnectionCommand = new AsyncRelayCommand(TestNasConnectionAsync);
         SaveSettingsCommand = new RelayCommand(() => SaveSettings(showDialog: true));
         SyncNowCommand = new AsyncRelayCommand(async () =>
@@ -262,6 +266,36 @@ public class SettingsViewModel : ViewModelBase
         });
 
         LoadFromConfig();
+    }
+
+    private void BrowseSource()
+    {
+        if (SelectedFolderPair == null) return;
+        var loc = LocalizationService.Instance;
+        var dialog = new OpenFolderDialog
+        {
+            Title = loc.GetString("Settings.SourceDialogTitle"),
+            InitialDirectory = Directory.Exists(SelectedFolderPair.SourcePath) ? SelectedFolderPair.SourcePath : ""
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            SelectedFolderPair.SourcePath = dialog.FolderName;
+        }
+    }
+
+    private void BrowseDestination()
+    {
+        if (SelectedFolderPair == null) return;
+        var loc = LocalizationService.Instance;
+        var dialog = new OpenFolderDialog
+        {
+            Title = loc.GetString("Settings.DestDialogTitle"),
+            InitialDirectory = Directory.Exists(SelectedFolderPair.DestinationPath) ? SelectedFolderPair.DestinationPath : ""
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            SelectedFolderPair.DestinationPath = dialog.FolderName;
+        }
     }
 
     private void AddFolderPair()

@@ -20,6 +20,8 @@
     <Window.Resources>
         <views:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <views:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <views:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <views:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
         <views:SyncStatusToBrushConverter x:Key="SyncStatusToBrushConverter"/>
         <views:AppThemeToStringConverter x:Key="AppThemeToStringConverter"/>
         <views:AppLanguageToStringConverter x:Key="AppLanguageToStringConverter"/>
@@ -299,8 +301,8 @@
                         <!-- 選択中ペアの詳細編集エリア -->
                         <Border BorderBrush="{DynamicResource Theme.Card.Border}" BorderThickness="1" CornerRadius="6"
                                 Background="{DynamicResource Theme.Window.Background}" Padding="12"
-                                Visibility="{Binding SelectedFolderPair, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <StackPanel DataContext="{Binding SelectedFolderPair}">
+                                Visibility="{Binding SelectedFolderPair, Converter={StaticResource NotNullToVisibilityConverter}}">
+                            <StackPanel>
                                 <!-- ペア名 & 有効化 -->
                                 <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
@@ -309,8 +311,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{DynamicResource Settings.PairName}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,12,0"/>
-                                    <CheckBox Grid.Column="2" IsChecked="{Binding IsEnabled}" Content="{DynamicResource Settings.PairEnabled}" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox Grid.Column="1" Text="{Binding SelectedFolderPair.Name, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,12,0"/>
+                                    <CheckBox Grid.Column="2" IsChecked="{Binding SelectedFolderPair.IsEnabled}" Content="{DynamicResource Settings.PairEnabled}" VerticalAlignment="Center" FontWeight="Medium"/>
                                 </Grid>
 
                                 <!-- Source -->
@@ -321,7 +323,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{DynamicResource Settings.SourcePath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"/>
+                                    <TextBox Grid.Column="1" Text="{Binding SelectedFolderPair.SourcePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"/>
                                     <Button Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseSourceCommand}" Style="{StaticResource SecondaryButton}" Height="30"/>
                                 </Grid>
 
@@ -333,7 +335,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{DynamicResource Settings.DestinationPath}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource Theme.Text.Secondary}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"
+                                    <TextBox Grid.Column="1" Text="{Binding SelectedFolderPair.DestinationPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" Height="30"
                                              ToolTip="Local path or UNC path (\\server\share\path)"/>
                                     <Button Grid.Column="2" Content="{DynamicResource Settings.Browse}" Command="{Binding BrowseDestinationCommand}" Style="{StaticResource SecondaryButton}" Height="30"/>
                                 </Grid>
@@ -342,7 +344,7 @@
 
                         <!-- 未選択時のメッセージ -->
                         <TextBlock Text="{DynamicResource Settings.NoFolderSelected}"
-                                   Visibility="{Binding SelectedFolderPair, Converter={StaticResource BoolToVisibilityConverter}}"
+                                   Visibility="{Binding SelectedFolderPair, Converter={StaticResource NullToVisibilityConverter}}"
                                    Foreground="{DynamicResource Theme.Text.Muted}" FontStyle="Italic" Margin="0,4,0,0"/>
                     </StackPanel>
                 </GroupBox>
