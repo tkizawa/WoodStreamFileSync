@@ -5,8 +5,14 @@ using System.Threading.Tasks;
 
 namespace WoodStreamFileSync.Services;
 
+/// <summary>
+/// Windows Networking API (mpr.dll) を使用して、NAS やネットワーク共有フォルダ (SMB/UNC) への認証接続を行うユーティリティクラス
+/// </summary>
 public static class NasAuthenticator
 {
+    /// <summary>
+    /// ネットワークリソースの情報を指定する Win32 NETRESOURCE 構造体
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct NETRESOURCE
     {
@@ -20,9 +26,17 @@ public static class NasAuthenticator
         public string? lpProvider;
     }
 
+    /// <summary>
+    /// ディスクリソースタイプ定数
+    /// </summary>
     private const int RESOURCETYPE_DISK = 0x00000001;
+
+    /// <summary>
+    /// 一時接続フラグ（プロファイルに永続化しない）
+    /// </summary>
     private const int CONNECT_TEMPORARY = 0x00000004;
 
+    // Win32 エラーコード定数
     private const int NO_ERROR = 0;
     private const int ERROR_ACCESS_DENIED = 5;
     private const int ERROR_BAD_NETPATH = 53;
@@ -32,6 +46,9 @@ public static class NasAuthenticator
     private const int ERROR_SESSION_CREDENTIAL_CONFLICT = 1219;
     private const int ERROR_LOGON_FAILURE = 1326;
 
+    /// <summary>
+    /// ネットワークリソースへの接続を作成する Windows API (WNetAddConnection2W)
+    /// </summary>
     [DllImport("mpr.dll", EntryPoint = "WNetAddConnection2W", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int WNetAddConnection2(
         ref NETRESOURCE lpNetResource,
@@ -39,6 +56,9 @@ public static class NasAuthenticator
         string? lpUsername,
         int dwFlags);
 
+    /// <summary>
+    /// ネットワーク接続を切断する Windows API (WNetCancelConnection2W)
+    /// </summary>
     [DllImport("mpr.dll", EntryPoint = "WNetCancelConnection2W", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int WNetCancelConnection2(
         string lpName,
@@ -46,8 +66,10 @@ public static class NasAuthenticator
         [MarshalAs(UnmanagedType.Bool)] bool fForce);
 
     /// <summary>
-    /// UNCパスかどうかを判定する
+    /// 指定されたパスが UNC パス（\\server\share 等）かどうかを判定します
     /// </summary>
+    /// <param name="path">判定対象のパス文字列</param>
+    /// <returns>UNC パスの場合は true、それ以外は false</returns>
     public static bool IsUncPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) return false;
@@ -55,8 +77,10 @@ public static class NasAuthenticator
     }
 
     /// <summary>
-    /// パスからUNC共有ルート（例: \\server\share）を抽出する
+    /// 指定されたパスから UNC 共有ルート（例: \\server\share）部分を正規表現で抽出します
     /// </summary>
+    /// <param name="path">対象のパス文字列</param>
+    /// <returns>抽出された共有ルート文字列。UNC パスでない場合は null</returns>
     public static string? ExtractUncShareRoot(string path)
     {
         if (!IsUncPath(path)) return null;
@@ -75,8 +99,12 @@ public static class NasAuthenticator
     }
 
     /// <summary>
-    /// NASへの認証セッションを確立する
+    /// 指定された UNC パスの共有ルートに対して、ユーザー名とパスワードを用いて認証セッションを確立します
     /// </summary>
+    /// <param name="uncPath">接続先の UNC パス（共有ルートまたはその配下）</param>
+    /// <param name="username">認証ユーザー名</param>
+    /// <param name="password">認証パスワード</param>
+    /// <returns>認証結果（成功成否フラグ、メッセージ）のタプル</returns>
     public static (bool Success, string Message) Authenticate(string uncPath, string? username, string? password)
     {
         var shareRoot = ExtractUncShareRoot(uncPath);
@@ -112,8 +140,12 @@ public static class NasAuthenticator
     }
 
     /// <summary>
-    /// 接続テスト非同期実行
+    /// バックグラウンドスレッドで NAS またはローカルフォルダへの接続・アクセス性をテストします
     /// </summary>
+    /// <param name="uncPath">テスト対象のパス</param>
+    /// <param name="username">NAS認証ユーザー名</param>
+    /// <param name="password">NAS認証パスワード</param>
+    /// <returns>接続テスト結果のタプル</returns>
     public static Task<(bool Success, string Message)> TestConnectionAsync(string uncPath, string? username, string? password)
     {
         return Task.Run(() =>

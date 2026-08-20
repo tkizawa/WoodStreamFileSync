@@ -7,25 +7,58 @@ using WoodStreamFileSync.Models;
 
 namespace WoodStreamFileSync.Services;
 
+/// <summary>
+/// アプリケーション全体のUIテーマ（ライト/ダーク/OS連動）の切り替えおよび
+/// Windows DWM によるタイトルバーのダークモード適用を制御するサービスクラス
+/// </summary>
 public class ThemeService
 {
     private static ThemeService? _instance;
+
+    /// <summary>
+    /// <see cref="ThemeService"/> のシングルトンインスタンス
+    /// </summary>
     public static ThemeService Instance => _instance ??= new ThemeService();
 
+    /// <summary>
+    /// Windows テーマ設定（Personalize）レジストリキーパス
+    /// </summary>
     private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+
+    /// <summary>
+    /// Windows 10 20H1 (Build 19041) 以降および Windows 11 用の DWM タイトルバー ダークモード属性定数
+    /// </summary>
     private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+    /// <summary>
+    /// Windows 10 1809〜1909 (Build 17763〜18363) 用の DWM タイトルバー ダークモード属性定数 (旧定義)
+    /// </summary>
     private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 
+    /// <summary>
+    /// ウィンドウ属性を設定する Desktop Window Manager (DWM) API
+    /// </summary>
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
     private AppTheme _currentThemeMode = AppTheme.System;
+
+    /// <summary>
+    /// 現在実際に適用されているテーマがダークテーマかどうかを取得します
+    /// </summary>
     public bool IsActualDark { get; private set; }
 
+    /// <summary>
+    /// テーマが変更された際に発生するイベント（引数はダークモードフラグ）
+    /// </summary>
     public event Action<bool>? ThemeChanged;
 
+    /// <summary>
+    /// <see cref="ThemeService"/> クラスの新しいインスタンスを初期化し、OSのユーザー設定変更イベントを監視します
+    /// </summary>
     public ThemeService()
     {
+        // OS側のテーマ（ライト/ダーク）切り替えをリアルタイム検知
         SystemEvents.UserPreferenceChanged += (s, e) =>
         {
             if (_currentThemeMode == AppTheme.System)
@@ -35,6 +68,10 @@ public class ThemeService
         };
     }
 
+    /// <summary>
+    /// 指定されたテーマモードを適用し、リソースディクショナリおよび開いているウィンドウのタイトルバーを更新します
+    /// </summary>
+    /// <param name="mode">適用するテーマモード（システム/ライト/ダーク）</param>
     public void ApplyTheme(AppTheme mode)
     {
         _currentThemeMode = mode;
@@ -63,6 +100,10 @@ public class ThemeService
         ThemeChanged?.Invoke(isDark);
     }
 
+    /// <summary>
+    /// Windows OS のアプリ設定がダークモードに設定されているかをレジストリから判定します
+    /// </summary>
+    /// <returns>OSがダークモードの場合は true、ライトモードの場合は false</returns>
     public static bool IsWindowsDarkMode()
     {
         try
@@ -73,7 +114,7 @@ public class ThemeService
                 var val = key.GetValue("AppsUseLightTheme");
                 if (val is int intVal)
                 {
-                    return intVal == 0;
+                    return intVal == 0; // 0 = Dark, 1 = Light
                 }
             }
         }
@@ -81,6 +122,10 @@ public class ThemeService
         return false;
     }
 
+    /// <summary>
+    /// WPF アプリケーションリソース内のテーマリソース辞書（DarkTheme.xaml / LightTheme.xaml）を差し替えます
+    /// </summary>
+    /// <param name="isDark">ダークテーマにするかどうか</param>
     private void UpdateMergedDictionary(bool isDark)
     {
         var themeDictUri = isDark
@@ -114,6 +159,11 @@ public class ThemeService
         }
     }
 
+    /// <summary>
+    /// DWM API を呼び出して、指定された WPF ウィンドウのネイティブタイトルバーのダークモード色を同期設定します
+    /// </summary>
+    /// <param name="window">対象のウィンドウ</param>
+    /// <param name="isDark">ダークモードにするかどうか</param>
     public void UpdateWindowTitleBar(Window window, bool isDark)
     {
         try
@@ -126,7 +176,7 @@ public class ThemeService
             int hr = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDarkMode, sizeof(int));
             if (hr != 0)
             {
-                // 古いビルド向け (19)
+                // 古いビルド向けフォールバック (19)
                 DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref useDarkMode, sizeof(int));
             }
         }

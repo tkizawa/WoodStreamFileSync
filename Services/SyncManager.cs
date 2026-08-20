@@ -8,30 +8,92 @@ using WoodStreamFileSync.Models;
 
 namespace WoodStreamFileSync.Services;
 
+/// <summary>
+/// 同期処理の通知（トースト通知等）要求イベント引数
+/// </summary>
 public class SyncNotificationEventArgs : EventArgs
 {
+    /// <summary>
+    /// 通知のタイトル
+    /// </summary>
     public string Title { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 通知のメッセージ本文
+    /// </summary>
     public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// エラーまたは警告に関する通知であるかどうか
+    /// </summary>
     public bool IsError { get; set; }
 }
 
+/// <summary>
+/// 定期同期、リアルタイム監視同期、手動同期の実行と状態を統括管理するシングルトンサービスクラス
+/// </summary>
 public class SyncManager : IDisposable
 {
     private static SyncManager? _instance;
+
+    /// <summary>
+    /// <see cref="SyncManager"/> のシングルトンインスタンス
+    /// </summary>
     public static SyncManager Instance => _instance ??= new SyncManager();
 
+    /// <summary>
+    /// 同時同期実行を防ぐセマフォ（排他制御）
+    /// </summary>
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+
+    /// <summary>
+    /// Robocopy 実行サービス
+    /// </summary>
     private readonly RobocopyRunner _robocopyRunner = new();
+
+    /// <summary>
+    /// フォルダ変更検知サービス
+    /// </summary>
     private readonly FolderWatcherService _folderWatcher = new();
+
+    /// <summary>
+    /// 定期同期間隔タイマー
+    /// </summary>
     private Timer? _periodicTimer;
+
+    /// <summary>
+    /// 現在適用中の設定
+    /// </summary>
     private AppConfig _config = new();
+
+    /// <summary>
+    /// 現在の同期ステータス
+    /// </summary>
     private SyncStatus _currentStatus = SyncStatus.Idle;
+
+    /// <summary>
+    /// 最終同期完了日時
+    /// </summary>
     private DateTime? _lastSyncTime;
+
+    /// <summary>
+    /// 破棄済みフラグ
+    /// </summary>
     private bool _isDisposed;
 
+    /// <summary>
+    /// 同期ステータスが変化した際に発生するイベント
+    /// </summary>
     public event EventHandler<SyncStatus>? StatusChanged;
+
+    /// <summary>
+    /// ユーザーへの通知（トースト通知）が要求された際に発生するイベント
+    /// </summary>
     public event EventHandler<SyncNotificationEventArgs>? NotificationRequested;
 
+    /// <summary>
+    /// 現在の同期実行ステータスを取得します
+    /// </summary>
     public SyncStatus CurrentStatus
     {
         get => _currentStatus;
@@ -45,28 +107,52 @@ public class SyncManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// 最終同期完了日時を取得します
+    /// </summary>
     public DateTime? LastSyncTime => _lastSyncTime;
+
+    /// <summary>
+    /// リアルタイム監視が現在動作中かどうかを取得します
+    /// </summary>
     public bool IsRealtimeWatcherRunning => _folderWatcher.IsWatching;
+
+    /// <summary>
+    /// 現在適用されている設定情報を取得します
+    /// </summary>
     public AppConfig Config => _config;
 
+    /// <summary>
+    /// <see cref="SyncManager"/> クラスの新しいインスタンスを初期化し、イベントハンドラをバインドします
+    /// </summary>
     public SyncManager()
     {
+        // リアルタイム変更検知時、該当フォルダペアの同期を非同期実行
         _folderWatcher.ChangeDetectedForPathAndSettled += (sourcePath) =>
         {
             _ = ExecuteSyncForSourcePathAsync(sourcePath, "リアルタイム検知");
         };
 
+        // 監視エラー発生時のステータス更新
         _folderWatcher.WatcherErrorOccurred += (msg) =>
         {
             CurrentStatus = SyncStatus.Warning;
         };
     }
 
+    /// <summary>
+    /// 設定情報を渡してサービスを初期化します
+    /// </summary>
+    /// <param name="config">適用する設定情報</param>
     public void Initialize(AppConfig config)
     {
         ApplyConfig(config);
     }
 
+    /// <summary>
+    /// 新しい設定情報を適用し、リアルタイム監視と定期タイマーを再起動・再スケジュールします
+    /// </summary>
+    /// <param name="config">適用する設定情報</param>
     public void ApplyConfig(AppConfig config)
     {
         _config = config;
@@ -101,6 +187,10 @@ public class SyncManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// 設定から有効（IsEnabled == true）な同期フォルダペアのリストを取得します
+    /// </summary>
+    /// <returns>有効なフォルダペアのリスト</returns>
     private List<SyncFolderPair> GetActiveFolderPairs()
     {
         if (_config.FolderPairs != null && _config.FolderPairs.Count > 0)
@@ -108,7 +198,7 @@ public class SyncManager : IDisposable
             return _config.FolderPairs.Where(p => p.IsEnabled).ToList();
         }
 
-        // 後方互換フォールバック
+        // 後方互換フォールバック（旧設定値が存在する場合）
         if (!string.IsNullOrWhiteSpace(_config.SourcePath) && !string.IsNullOrWhiteSpace(_config.DestinationPath))
         {
             return new List<SyncFolderPair>
@@ -125,12 +215,18 @@ public class SyncManager : IDisposable
         return new List<SyncFolderPair>();
     }
 
+    /// <summary>
+    /// 定期タイマー発火時のコールバックハンドラ
+    /// </summary>
     private void OnPeriodicTimerElapsed(object? state)
     {
         LoggerService.Instance.LogInfo("定期タイマーによる同期を開始します。", "SyncManager");
         _ = ExecuteSyncAsync("定期タイマー");
     }
 
+    /// <summary>
+    /// リアルタイム監視の有効/無効をトグル切り替えします
+    /// </summary>
     public void ToggleRealtimeSync()
     {
         _config.EnableRealtimeSync = !_config.EnableRealtimeSync;
@@ -148,6 +244,11 @@ public class SyncManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// 変更検知された同期元パスに該当するフォルダペアを特定して同期を実行します
+    /// </summary>
+    /// <param name="sourcePath">変更が検知された同期元パス</param>
+    /// <param name="triggerSource">同期トリガー名</param>
     private async Task ExecuteSyncForSourcePathAsync(string sourcePath, string triggerSource)
     {
         var activePairs = GetActiveFolderPairs();
@@ -167,6 +268,12 @@ public class SyncManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// 同期処理を非同期実行します（排他制御付き）
+    /// </summary>
+    /// <param name="triggerSource">実行要因（例: "手動実行", "定期タイマー", "リアルタイム検知" 等）</param>
+    /// <param name="targetPair">特定のペアのみ同期する場合は指定。nullの場合は有効な全ペアが対象</param>
+    /// <returns>Robocopyの最終実行結果。実行されなかった場合は null</returns>
     public Task<RobocopyResult?> ExecuteSyncAsync(string triggerSource, SyncFolderPair? targetPair = null)
     {
         return Task.Run(async () =>
@@ -181,7 +288,7 @@ public class SyncManager : IDisposable
                 return null;
             }
 
-            // 排他ロック試行
+            // 排他ロック試行（先行実行中の同期がある場合はスキップ）
             if (!await _syncLock.WaitAsync(0))
             {
                 LoggerService.Instance.LogWarning($"別の同期処理が実行中のため、[{triggerSource}] による同期リクエストをスキップしました。", "SyncManager");
@@ -272,6 +379,7 @@ public class SyncManager : IDisposable
 
                 _lastSyncTime = DateTime.Now;
 
+                // 完了状態の判定とトースト通知
                 if (errorCount == 0 && successCount > 0)
                 {
                     CurrentStatus = SyncStatus.Success;
@@ -337,6 +445,9 @@ public class SyncManager : IDisposable
         });
     }
 
+    /// <summary>
+    /// アンマネージドリソースおよびタイマー等を解放します
+    /// </summary>
     public void Dispose()
     {
         if (_isDisposed) return;

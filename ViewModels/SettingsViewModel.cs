@@ -11,6 +11,9 @@ using WoodStreamFileSync.Services;
 
 namespace WoodStreamFileSync.ViewModels;
 
+/// <summary>
+/// 設定画面全体のデータバインディング、各種同期パラメータの編集、設定保存・テスト実行を制御する ViewModel
+/// </summary>
 public class SettingsViewModel : ViewModelBase
 {
     private readonly ConfigManager _configManager;
@@ -46,22 +49,42 @@ public class SettingsViewModel : ViewModelBase
     private string _statusMessage = "待機中";
     private SyncStatus _currentSyncStatus = SyncStatus.Idle;
 
+    /// <summary>
+    /// 同期フォルダペアのリスト
+    /// </summary>
     public ObservableCollection<FolderPairViewModel> FolderPairs
     {
         get => _folderPairs;
         set => SetProperty(ref _folderPairs, value);
     }
 
+    /// <summary>
+    /// リスト上で現在選択されているフォルダペア
+    /// </summary>
     public FolderPairViewModel? SelectedFolderPair
     {
         get => _selectedFolderPair;
         set => SetProperty(ref _selectedFolderPair, value);
     }
 
+    /// <summary>
+    /// 定期同期間隔の選択肢リスト（分単位）
+    /// </summary>
     public ObservableCollection<int> IntervalOptions { get; } = new() { 5, 10, 15, 30, 60, 120 };
+
+    /// <summary>
+    /// テーマの選択肢リスト
+    /// </summary>
     public ObservableCollection<AppTheme> ThemeOptions { get; } = new() { AppTheme.System, AppTheme.Light, AppTheme.Dark };
+
+    /// <summary>
+    /// 言語の選択肢リスト
+    /// </summary>
     public ObservableCollection<AppLanguage> LanguageOptions { get; } = new() { AppLanguage.System, AppLanguage.Japanese, AppLanguage.English };
 
+    /// <summary>
+    /// 選択中のUIテーマ（変更時に即時適用）
+    /// </summary>
     public AppTheme ThemeMode
     {
         get => _themeMode;
@@ -74,6 +97,9 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 選択中の表示言語（変更時に即時適用）
+    /// </summary>
     public AppLanguage LanguageMode
     {
         get => _languageMode;
@@ -87,162 +113,274 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 定期同期の有効/無効
+    /// </summary>
     public bool EnablePeriodicSync
     {
         get => _enablePeriodicSync;
         set => SetProperty(ref _enablePeriodicSync, value);
     }
 
+    /// <summary>
+    /// 定期同期間隔（分単位）
+    /// </summary>
     public int PeriodicIntervalMinutes
     {
         get => _periodicIntervalMinutes;
         set => SetProperty(ref _periodicIntervalMinutes, value);
     }
 
+    /// <summary>
+    /// リアルタイム監視同期の有効/無効
+    /// </summary>
     public bool EnableRealtimeSync
     {
         get => _enableRealtimeSync;
         set => SetProperty(ref _enableRealtimeSync, value);
     }
 
+    /// <summary>
+    /// リアルタイム監視のデバウンス待機時間（秒単位）
+    /// </summary>
     public int DebounceDelaySeconds
     {
         get => _debounceDelaySeconds;
         set => SetProperty(ref _debounceDelaySeconds, value);
     }
 
+    /// <summary>
+    /// NAS事前認証の有効/無効
+    /// </summary>
     public bool EnableNasAuth
     {
         get => _enableNasAuth;
         set => SetProperty(ref _enableNasAuth, value);
     }
 
+    /// <summary>
+    /// NAS認証用ユーザー名
+    /// </summary>
     public string NasUsername
     {
         get => _nasUsername;
         set => SetProperty(ref _nasUsername, value);
     }
 
+    /// <summary>
+    /// NAS認証用パスワード
+    /// </summary>
     public string NasPassword
     {
         get => _nasPassword;
         set => SetProperty(ref _nasPassword, value);
     }
 
+    /// <summary>
+    /// Robocopy /MIR (ミラーリング) 有効フラグ
+    /// </summary>
     public bool IsMirror
     {
         get => _isMirror;
         set => SetProperty(ref _isMirror, value);
     }
 
+    /// <summary>
+    /// Robocopy /E (空のサブディレクトリを含む) 有効フラグ
+    /// </summary>
     public bool IncludeEmptySubdirectories
     {
         get => _includeEmptySubdirectories;
         set => SetProperty(ref _includeEmptySubdirectories, value);
     }
 
+    /// <summary>
+    /// Robocopy 再試行回数 (/R:n)
+    /// </summary>
     public int RetryCount
     {
         get => _retryCount;
         set => SetProperty(ref _retryCount, value);
     }
 
+    /// <summary>
+    /// Robocopy 再試行待機秒数 (/W:n)
+    /// </summary>
     public int WaitTimeSeconds
     {
         get => _waitTimeSeconds;
         set => SetProperty(ref _waitTimeSeconds, value);
     }
 
+    /// <summary>
+    /// Robocopy 追加引数文字列
+    /// </summary>
     public string AdditionalArguments
     {
         get => _additionalArguments;
         set => SetProperty(ref _additionalArguments, value);
     }
 
+    /// <summary>
+    /// 除外ファイルパターン文字列 (/XF)
+    /// </summary>
     public string ExcludeFiles
     {
         get => _excludeFiles;
         set => SetProperty(ref _excludeFiles, value);
     }
 
+    /// <summary>
+    /// 除外ディレクトリパターン文字列 (/XD)
+    /// </summary>
     public string ExcludeDirs
     {
         get => _excludeDirs;
         set => SetProperty(ref _excludeDirs, value);
     }
 
+    /// <summary>
+    /// Windows スタートアップ自動起動フラグ
+    /// </summary>
     public bool LaunchAtStartup
     {
         get => _launchAtStartup;
         set => SetProperty(ref _launchAtStartup, value);
     }
 
+    /// <summary>
+    /// 初回免責事項への同意フラグ
+    /// </summary>
     public bool HasAcceptedDisclaimer { get; set; } = false;
 
+    /// <summary>
+    /// 閉じるボタン押下時にタスクトレイへ最小化するかどうか
+    /// </summary>
     public bool MinimizeToTrayOnClose
     {
         get => _minimizeToTrayOnClose;
         set => SetProperty(ref _minimizeToTrayOnClose, value);
     }
 
+    /// <summary>
+    /// 同期成功時のトースト通知フラグ
+    /// </summary>
     public bool ShowNotificationOnSuccess
     {
         get => _showNotificationOnSuccess;
         set => SetProperty(ref _showNotificationOnSuccess, value);
     }
 
+    /// <summary>
+    /// 同期エラー時のトースト通知フラグ
+    /// </summary>
     public bool ShowNotificationOnError
     {
         get => _showNotificationOnError;
         set => SetProperty(ref _showNotificationOnError, value);
     }
 
+    /// <summary>
+    /// NAS 接続テスト結果メッセージ
+    /// </summary>
     public string ConnectionTestResult
     {
         get => _connectionTestResult;
         set => SetProperty(ref _connectionTestResult, value);
     }
 
+    /// <summary>
+    /// NAS 接続テストが成功したかどうか
+    /// </summary>
     public bool IsConnectionTestSuccess
     {
         get => _isConnectionTestSuccess;
         set => SetProperty(ref _isConnectionTestSuccess, value);
     }
 
+    /// <summary>
+    /// NAS 接続テストの非同期実行中フラグ
+    /// </summary>
     public bool IsTestingConnection
     {
         get => _isTestingConnection;
         set => SetProperty(ref _isTestingConnection, value);
     }
 
+    /// <summary>
+    /// 画面下部に表示する同期ステータスメッセージ
+    /// </summary>
     public string StatusMessage
     {
         get => _statusMessage;
         set => SetProperty(ref _statusMessage, value);
     }
 
+    /// <summary>
+    /// 現在の同期ステータス
+    /// </summary>
     public SyncStatus CurrentSyncStatus
     {
         get => _currentSyncStatus;
         set => SetProperty(ref _currentSyncStatus, value);
     }
 
+    /// <summary>
+    /// 新規フォルダペア追加コマンド
+    /// </summary>
     public ICommand AddFolderPairCommand { get; }
+
+    /// <summary>
+    /// フォルダペア削除コマンド
+    /// </summary>
     public ICommand RemoveFolderPairCommand { get; }
+
+    /// <summary>
+    /// 単一フォルダペアの個別手動同期実行コマンド
+    /// </summary>
     public ICommand SyncSinglePairCommand { get; }
+
+    /// <summary>
+    /// 同期元フォルダ参照コマンド
+    /// </summary>
     public ICommand BrowseSourceCommand { get; }
+
+    /// <summary>
+    /// 同期先フォルダ参照コマンド
+    /// </summary>
     public ICommand BrowseDestinationCommand { get; }
+
+    /// <summary>
+    /// NAS 認証接続テストコマンド
+    /// </summary>
     public ICommand TestNasConnectionCommand { get; }
+
+    /// <summary>
+    /// 設定保存コマンド
+    /// </summary>
     public ICommand SaveSettingsCommand { get; }
+
+    /// <summary>
+    /// 今すぐ全ペア同期実行コマンド
+    /// </summary>
     public ICommand SyncNowCommand { get; }
 
+    /// <summary>
+    /// 設定保存が完了した際に発生するイベント
+    /// </summary>
     public event Action? SettingsSaved;
 
+    /// <summary>
+    /// <see cref="SettingsViewModel"/> の新しいインスタンスを初期化し、各種コマンドおよび設定を読み込みます
+    /// </summary>
+    /// <param name="configManager">設定マネージャーインスタンス</param>
+    /// <param name="syncManager">同期マネージャーインスタンス</param>
     public SettingsViewModel(ConfigManager configManager, SyncManager syncManager)
     {
         _configManager = configManager;
         _syncManager = syncManager;
 
+        // 同期ステータス変更イベントを購読してUIを更新
         _syncManager.StatusChanged += (_, status) =>
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -268,6 +406,9 @@ public class SettingsViewModel : ViewModelBase
         LoadFromConfig();
     }
 
+    /// <summary>
+    /// 選択中のフォルダペアに対する同期元選択ダイアログを開きます
+    /// </summary>
     private void BrowseSource()
     {
         if (SelectedFolderPair == null) return;
@@ -283,6 +424,9 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 選択中のフォルダペアに対する同期先選択ダイアログを開きます
+    /// </summary>
     private void BrowseDestination()
     {
         if (SelectedFolderPair == null) return;
@@ -298,6 +442,9 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 新規の同期フォルダペアを作成してリストに追加します
+    /// </summary>
     private void AddFolderPair()
     {
         var newPair = new FolderPairViewModel
@@ -309,6 +456,10 @@ public class SettingsViewModel : ViewModelBase
         SelectedFolderPair = newPair;
     }
 
+    /// <summary>
+    /// 指定された同期フォルダペア（または選択中のペア）をリストから削除します
+    /// </summary>
+    /// <param name="pair">削除対象のペア（省略時は選択中のペア）</param>
     private void RemoveFolderPair(FolderPairViewModel? pair)
     {
         var target = pair ?? SelectedFolderPair;
@@ -330,6 +481,10 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 指定された特定のフォルダペアのみを手動で同期実行します
+    /// </summary>
+    /// <param name="pair">同期対象のペア</param>
     private async Task SyncSinglePairAsync(FolderPairViewModel? pair)
     {
         var target = pair ?? SelectedFolderPair;
@@ -339,6 +494,9 @@ public class SettingsViewModel : ViewModelBase
         await _syncManager.ExecuteSyncAsync($"手動同期 [{target.DisplayName}]", target.ToModel());
     }
 
+    /// <summary>
+    /// 現在の同期ステータスおよび言語設定に基づいてステータステキストを更新します
+    /// </summary>
     private void UpdateStatusText()
     {
         var loc = LocalizationService.Instance;
@@ -353,6 +511,9 @@ public class SettingsViewModel : ViewModelBase
         };
     }
 
+    /// <summary>
+    /// 設定ファイルから各プロパティの値を読み込み、ViewModelに反映します
+    /// </summary>
     public void LoadFromConfig()
     {
         var config = _configManager.LoadConfig();
@@ -405,6 +566,10 @@ public class SettingsViewModel : ViewModelBase
         UpdateStatusText();
     }
 
+    /// <summary>
+    /// 現在の ViewModel の各プロパティ値を <see cref="AppConfig"/> モデルにまとめます
+    /// </summary>
+    /// <returns>設定データモデル</returns>
     public AppConfig ToConfig()
     {
         var firstPair = FolderPairs.FirstOrDefault();
@@ -440,6 +605,10 @@ public class SettingsViewModel : ViewModelBase
         };
     }
 
+    /// <summary>
+    /// 設定内容をファイルに保存し、同期マネージャーに即時反映します
+    /// </summary>
+    /// <param name="showDialog">完了メッセージダイアログを表示するかどうか</param>
     private void SaveSettings(bool showDialog = true)
     {
         var loc = LocalizationService.Instance;
@@ -466,6 +635,9 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 設定されたUNCパスおよび認証情報を用いて、NAS接続テストを非同期実行します
+    /// </summary>
     private async Task TestNasConnectionAsync()
     {
         // 選択中または登録済みのペアからUNCパスを探す

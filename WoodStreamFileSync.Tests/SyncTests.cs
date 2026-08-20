@@ -7,8 +7,14 @@ using Xunit;
 
 namespace WoodStreamFileSync.Tests;
 
+/// <summary>
+/// 同期エンジン、認証ユーティリティ、暗号化、フォルダ監視、設定モデルの単体テストクラス
+/// </summary>
 public class SyncTests
 {
+    /// <summary>
+    /// アプリケーションアイコンファイル（ico / png）が存在するかテスト
+    /// </summary>
     [Fact]
     public void Test_App_Icon_Exists()
     {
@@ -19,6 +25,9 @@ public class SyncTests
         Assert.True(File.Exists(destPng));
     }
 
+    /// <summary>
+    /// Windows DPAPI による平文パスワードの暗号化および復号が正常に行われるかテスト
+    /// </summary>
     [Fact]
     public void Test_DPAPI_Encryption_Decryption()
     {
@@ -32,6 +41,9 @@ public class SyncTests
         Assert.Equal(original, decrypted);
     }
 
+    /// <summary>
+    /// UNC パスの判定ロジックおよび共有ルート抽出（\\server\share）が正しく動作するかテスト
+    /// </summary>
     [Fact]
     public void Test_UncPath_Detection_And_RootExtraction()
     {
@@ -44,6 +56,9 @@ public class SyncTests
         Assert.Equal(@"\\nas01\backup", NasAuthenticator.ExtractUncShareRoot(@"\\nas01\backup"));
     }
 
+    /// <summary>
+    /// Robocopy のビットマスク終了コードに応じた成否評価およびメッセージ判定テスト
+    /// </summary>
     [Theory]
     [InlineData(0, true)]
     [InlineData(1, true)]
@@ -59,6 +74,9 @@ public class SyncTests
         Assert.NotEmpty(description);
     }
 
+    /// <summary>
+    /// ローカル一時フォルダ間での Robocopy 実行・ファイルコピー動作テスト
+    /// </summary>
     [Fact]
     public async Task Test_Local_Folder_Robocopy_Execution()
     {
@@ -103,6 +121,9 @@ public class SyncTests
         }
     }
 
+    /// <summary>
+    /// フォルダ監視サービスで短時間に複数回発生した変更が1回の同期イベントに集約（デバウンス）されるかテスト
+    /// </summary>
     [Fact]
     public async Task Test_FolderWatcher_Debounce()
     {
@@ -144,6 +165,9 @@ public class SyncTests
         }
     }
 
+    /// <summary>
+    /// SyncFolderPair の DisplayName プロパティが設定名称やパスに応じて適切に解決されるかテスト
+    /// </summary>
     [Fact]
     public void Test_SyncFolderPair_DisplayName()
     {
@@ -157,6 +181,9 @@ public class SyncTests
         Assert.Equal("新規フォルダペア", pair3.DisplayName);
     }
 
+    /// <summary>
+    /// 複数フォルダペアを設定した SyncManager の一括同期実行テスト
+    /// </summary>
     [Fact]
     public async Task Test_Multiple_Folder_Sync_Execution()
     {

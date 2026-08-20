@@ -12,6 +12,9 @@ using WoodStreamFileSync.Services;
 
 namespace WoodStreamFileSync.ViewModels;
 
+/// <summary>
+/// ログ確認ウィンドウのデータバインディングおよび操作を担う ViewModel
+/// </summary>
 public class LogViewModel : ViewModelBase
 {
     private readonly LoggerService _logger;
@@ -19,22 +22,44 @@ public class LogViewModel : ViewModelBase
     private readonly ConcurrentQueue<SyncLogEntry> _pendingLogs = new();
     private readonly DispatcherTimer _uiUpdateTimer;
 
+    /// <summary>
+    /// UIにバインドされるログレコードのコレクション
+    /// </summary>
     public ObservableCollection<SyncLogEntry> Logs { get; } = new();
 
+    /// <summary>
+    /// 新規ログ受信時に最下部へ自動スクロールするかどうか
+    /// </summary>
     public bool AutoScroll
     {
         get => _autoScroll;
         set => SetProperty(ref _autoScroll, value);
     }
 
+    /// <summary>
+    /// ログ消去コマンド
+    /// </summary>
     public ICommand ClearLogsCommand { get; }
+
+    /// <summary>
+    /// ログ全文クリップボードコピーコマンド
+    /// </summary>
     public ICommand CopyLogsCommand { get; }
+
+    /// <summary>
+    /// ログ保存フォルダをエクスプローラーで開くコマンド
+    /// </summary>
     public ICommand OpenLogFolderCommand { get; }
 
+    /// <summary>
+    /// <see cref="LogViewModel"/> の新しいインスタンスを初期化し、直近ログの読み込みとUIバッチ更新タイマーを開始します
+    /// </summary>
+    /// <param name="logger">ロガーサービスインスタンス</param>
     public LogViewModel(LoggerService logger)
     {
         _logger = logger;
 
+        // 既存の直近ログを読み込み
         foreach (var entry in _logger.GetRecentLogs())
         {
             Logs.Add(entry);
@@ -55,11 +80,18 @@ public class LogViewModel : ViewModelBase
         OpenLogFolderCommand = new RelayCommand(OpenLogFolder);
     }
 
+    /// <summary>
+    /// バックグラウンドからのログ受信時にスレッドセーフなキューへ追加します
+    /// </summary>
+    /// <param name="entry">受信したログレコード</param>
     private void OnLogReceived(SyncLogEntry entry)
     {
         _pendingLogs.Enqueue(entry);
     }
 
+    /// <summary>
+    /// 100msごとのUIタイマータスク。キューからログを取り出して ObservableCollection にバッチ追加します
+    /// </summary>
     private void OnUiUpdateTick(object? sender, EventArgs e)
     {
         if (_pendingLogs.IsEmpty) return;
@@ -71,12 +103,16 @@ public class LogViewModel : ViewModelBase
             addedCount++;
         }
 
+        // メモリ圧迫防止のためコレクションサイズを最大1500行に制限
         while (Logs.Count > 1500)
         {
             Logs.RemoveAt(0);
         }
     }
 
+    /// <summary>
+    /// 画面およびメモリ上のログを消去します
+    /// </summary>
     private void ClearLogs()
     {
         _logger.ClearMemoryLogs();
@@ -84,6 +120,9 @@ public class LogViewModel : ViewModelBase
         Logs.Clear();
     }
 
+    /// <summary>
+    /// 表示中のログテキスト全体をクリップボードにコピーします
+    /// </summary>
     private void CopyLogs()
     {
         var sb = new StringBuilder();
@@ -95,6 +134,9 @@ public class LogViewModel : ViewModelBase
         MessageBox.Show("ログをクリップボードにコピーしました。", "コピー完了", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
+    /// <summary>
+    /// ログファイルが保存されているローカルフォルダを Windows エクスプローラーで開きます
+    /// </summary>
     private void OpenLogFolder()
     {
         try

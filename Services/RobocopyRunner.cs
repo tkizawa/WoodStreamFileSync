@@ -9,18 +9,50 @@ using WoodStreamFileSync.Models;
 
 namespace WoodStreamFileSync.Services;
 
+/// <summary>
+/// Robocopy コマンドの実行結果を保持するデータクラス
+/// </summary>
 public class RobocopyResult
 {
+    /// <summary>
+    /// 同期が成功（終了コードが8未満）したかどうか
+    /// </summary>
     public bool Success { get; set; }
+
+    /// <summary>
+    /// Robocopy プロセスの終了コード (ビットマスク)
+    /// </summary>
     public int ExitCode { get; set; }
+
+    /// <summary>
+    /// 終了コードに基づいた日本語サマリーメッセージ
+    /// </summary>
     public string SummaryMessage { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Robocopy の標準出力テキスト全体
+    /// </summary>
     public string StandardOutput { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Robocopy の標準エラー出力テキスト全体
+    /// </summary>
     public string StandardError { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 同期処理にかかった所要時間
+    /// </summary>
     public TimeSpan Duration { get; set; }
 }
 
+/// <summary>
+/// Windows 標準の `robocopy.exe` を非同期プロセスとして呼び出し、フォルダ間同期を実行・制御するクラス
+/// </summary>
 public class RobocopyRunner
 {
+    /// <summary>
+    /// 静的コンストラクタ。Shift-JIS等のコードページプロバイダーを登録します
+    /// </summary>
     static RobocopyRunner()
     {
         try
@@ -30,6 +62,9 @@ public class RobocopyRunner
         catch { }
     }
 
+    /// <summary>
+    /// コマンドプロンプト / Robocopy 出力用の文字エンコーディング（CP932 / OEMコードページ）を取得します
+    /// </summary>
     private static Encoding GetCmdEncoding()
     {
         try
@@ -49,6 +84,15 @@ public class RobocopyRunner
         }
     }
 
+    /// <summary>
+    /// Robocopy を非同期実行して同期処理を行います
+    /// </summary>
+    /// <param name="sourcePath">同期元フォルダパス</param>
+    /// <param name="destinationPath">同期先フォルダパス</param>
+    /// <param name="options">Robocopy 実行オプション</param>
+    /// <param name="onOutputLine">出力行を受信した際のコールバックアクション（リアルタイムログ用）</param>
+    /// <param name="cancellationToken">キャンセルトークン</param>
+    /// <returns>Robocopy 実行結果オブジェクト</returns>
     public async Task<RobocopyResult> RunAsync(
         string sourcePath,
         string destinationPath,
@@ -80,6 +124,7 @@ public class RobocopyRunner
 
         using var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
 
+        // 標準出力の非同期読み取りハンドラ
         process.OutputDataReceived += (_, e) =>
         {
             if (e.Data != null)
@@ -93,6 +138,7 @@ public class RobocopyRunner
             }
         };
 
+        // 標準エラー出力の非同期読み取りハンドラ
         process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null)
@@ -137,6 +183,7 @@ public class RobocopyRunner
         }
         catch (OperationCanceledException)
         {
+            // キャンセル要求時のプロセス強制終了
             try
             {
                 if (!process.HasExited)
@@ -168,6 +215,13 @@ public class RobocopyRunner
         }
     }
 
+    /// <summary>
+    /// 指定されたオプションから Robocopy のコマンドライン引数文字列を構築します
+    /// </summary>
+    /// <param name="source">同期元フォルダパス</param>
+    /// <param name="destination">同期先フォルダパス</param>
+    /// <param name="options">オプション設定</param>
+    /// <returns>コマンドライン引数文字列</returns>
     private static string BuildArguments(string source, string destination, RobocopyOptions options)
     {
         // パス末尾のバックスラッシュがクォートと衝突してエスケープ扱いになるのを防ぐ (例: "C:\folder\" -> "C:\folder\\")
@@ -213,6 +267,11 @@ public class RobocopyRunner
         return args.ToString();
     }
 
+    /// <summary>
+    /// コマンド引数として渡すパス文字列を正規化します（末尾の余分なバックスラッシュを除去）
+    /// </summary>
+    /// <param name="path">正規化するパス文字列</param>
+    /// <returns>正規化後のパス文字列</returns>
     private static string NormalizePathForCmd(string path)
     {
         var p = path.Trim();
@@ -223,15 +282,20 @@ public class RobocopyRunner
         return p;
     }
 
+    /// <summary>
+    /// Robocopy のビットマスク終了コードを解析し、成功成否および日本語の説明文を返します
+    /// </summary>
+    /// <param name="code">Robocopy 終了コード</param>
+    /// <returns>成功フラグと説明文のタプル</returns>
     public static (bool Success, string Description) EvaluateExitCode(int code)
     {
         // Robocopy Exit Code bitmask:
-        // 0: No changes
-        // 1: Files copied
-        // 2: Extra files deleted
-        // 4: Mismatches detected
-        // 8: Failed copies
-        // 16: Serious error
+        // 0: 変更なし（差分なし）
+        // 1: ファイルコピー完了
+        // 2: 余分なファイル削除完了
+        // 4: 不一致ファイルの検出・同期
+        // 8: コピー失敗（アクセス拒否など）
+        // 16: 重大なエラー（構文エラーや致命的アクセス不可）
 
         if (code >= 16)
         {

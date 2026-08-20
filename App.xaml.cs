@@ -14,24 +14,42 @@ using WoodStreamFileSync.Views;
 
 namespace WoodStreamFileSync;
 
+/// <summary>
+/// アプリケーションのエントリポイントおよびタスクトレイ常駐・ライフサイクル管理を行うクラス
+/// </summary>
 public partial class App : Application
 {
+    /// <summary>
+    /// アプリケーションの二重起動を防止するためのグローバルミューテックス
+    /// </summary>
     private static Mutex? _mutex;
     private const string AppMutexName = "Global\\WoodStreamFileSync_SingleInstance_Mutex";
 
+    /// <summary>
+    /// タスクトレイアイコン管理オブジェクト
+    /// </summary>
     private TaskbarIcon? _trayIcon;
+
+    // 各種バックエンドサービス
     private ConfigManager _configManager = null!;
     private SyncManager _syncManager = null!;
     private LoggerService _logger = null!;
 
+    // 各画面用 ViewModel
     private SettingsViewModel _settingsViewModel = null!;
     private LogViewModel _logViewModel = null!;
+
+    // ウィンドウインスタンス（再利用のため保持）
     private SettingsWindow? _settingsWindow;
     private LogWindow? _logWindow;
     private HelpWindow? _helpWindow;
 
     private MenuItem? _realtimeMenuItem;
 
+    /// <summary>
+    /// アプリケーション起動時の初期化処理
+    /// </summary>
+    /// <param name="e">起動イベント引数</param>
     protected override void OnStartup(StartupEventArgs e)
     {
         // 1. 二重起動防止 (Mutex)
@@ -107,6 +125,9 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// タスクトレイアイコンおよび右クリックコンテキストメニューを構築します
+    /// </summary>
     private void SetupTrayIcon()
     {
         var loc = LocalizationService.Instance;
@@ -128,6 +149,7 @@ public partial class App : Application
         // コンテキストメニュー作成
         var contextMenu = new ContextMenu();
 
+        // 「今すぐ同期」メニュー
         var syncNowItem = new MenuItem
         {
             Header = loc.GetString("Tray.SyncNow"),
@@ -139,6 +161,7 @@ public partial class App : Application
         };
         contextMenu.Items.Add(syncNowItem);
 
+        // 「リアルタイム監視」トグルメニュー
         _realtimeMenuItem = new MenuItem
         {
             Header = loc.GetString("Tray.RealtimeSync"),
@@ -153,20 +176,24 @@ public partial class App : Application
 
         contextMenu.Items.Add(new Separator());
 
+        // 「設定」メニュー
         var settingsItem = new MenuItem { Header = loc.GetString("Tray.Settings") };
         settingsItem.Click += (_, _) => ShowSettingsWindow();
         contextMenu.Items.Add(settingsItem);
 
+        // 「ログ表示」メニュー
         var logItem = new MenuItem { Header = loc.GetString("Tray.Logs") };
         logItem.Click += (_, _) => ShowLogWindow();
         contextMenu.Items.Add(logItem);
 
+        // 「ヘルプ」メニュー
         var helpItem = new MenuItem { Header = loc.GetString("Tray.Help") };
         helpItem.Click += (_, _) => ShowHelpWindow();
         contextMenu.Items.Add(helpItem);
 
         contextMenu.Items.Add(new Separator());
 
+        // 「終了」メニュー
         var exitItem = new MenuItem { Header = loc.GetString("Tray.Exit") };
         exitItem.Click += (_, _) => ExitApplication();
         contextMenu.Items.Add(exitItem);
@@ -175,6 +202,10 @@ public partial class App : Application
         _trayIcon.ForceCreate();
     }
 
+    /// <summary>
+    /// アプリケーションのリソースから埋め込みアイコンを取得します
+    /// </summary>
+    /// <returns>System.Drawing.Icon インスタンス</returns>
     private System.Drawing.Icon GetAppIcon()
     {
         try
@@ -191,6 +222,9 @@ public partial class App : Application
         return System.Drawing.SystemIcons.Application;
     }
 
+    /// <summary>
+    /// 同期ステータス変更時にタスクトレイのツールチップ文字列を更新します
+    /// </summary>
     private void OnSyncStatusChanged(object? sender, SyncStatus status)
     {
         Dispatcher.Invoke(() =>
@@ -211,6 +245,9 @@ public partial class App : Application
         });
     }
 
+    /// <summary>
+    /// 同期マネージャーからの通知要求イベントに応じてトレイバルーン通知を表示します
+    /// </summary>
     private void OnNotificationRequested(object? sender, SyncNotificationEventArgs e)
     {
         Dispatcher.Invoke(() =>
@@ -221,6 +258,9 @@ public partial class App : Application
         });
     }
 
+    /// <summary>
+    /// 設定画面を表示・アクティブ化します
+    /// </summary>
     public void ShowSettingsWindow()
     {
         if (_settingsWindow == null)
@@ -234,6 +274,9 @@ public partial class App : Application
         _settingsWindow.Activate();
     }
 
+    /// <summary>
+    /// ログ画面を表示・アクティブ化します
+    /// </summary>
     public void ShowLogWindow()
     {
         if (_logWindow == null)
@@ -246,6 +289,9 @@ public partial class App : Application
         _logWindow.Activate();
     }
 
+    /// <summary>
+    /// ヘルプ画面を表示・アクティブ化します
+    /// </summary>
     public void ShowHelpWindow()
     {
         if (_helpWindow == null)
@@ -258,6 +304,9 @@ public partial class App : Application
         _helpWindow.Activate();
     }
 
+    /// <summary>
+    /// 各種ウィンドウやサービス、ミューテックスを解放してアプリケーションを正常終了します
+    /// </summary>
     private void ExitApplication()
     {
         _logger.LogInfo("アプリケーションを終了します。", "App");
@@ -294,6 +343,9 @@ public partial class App : Application
         Shutdown();
     }
 
+    /// <summary>
+    /// アプリケーション終了イベントハンドラ
+    /// </summary>
     protected override void OnExit(ExitEventArgs e)
     {
         _mutex?.Dispose();

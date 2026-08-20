@@ -7,15 +7,40 @@ using System.Threading.Tasks;
 
 namespace WoodStreamFileSync.Services;
 
+/// <summary>
+/// <see cref="FileSystemWatcher"/> を使用して複数の同期元フォルダの変更をリアルタイム監視し、
+/// デバウンス待機後に同期処理イベントを発行するサービスクラス
+/// </summary>
 public class FolderWatcherService : IDisposable
 {
+    /// <summary>
+    /// 各監視パスごとの FileSystemWatcher とデバウンスタイマー、再接続状態を管理する内部クラス
+    /// </summary>
     private class WatcherItem : IDisposable
     {
+        /// <summary>
+        /// 監視対象のフォルダパス
+        /// </summary>
         public string Path { get; set; } = string.Empty;
+
+        /// <summary>
+        /// ファイルシステム監視オブジェクト
+        /// </summary>
         public FileSystemWatcher? Watcher { get; set; }
+
+        /// <summary>
+        /// 変更検知後のデバウンス用タイマー
+        /// </summary>
         public Timer? DebounceTimer { get; set; }
+
+        /// <summary>
+        /// ネットワーク切断等による再接続待機中フラグ
+        /// </summary>
         public bool IsReconnecting { get; set; }
 
+        /// <summary>
+        /// タイマーと Watcher のリソースを解放します
+        /// </summary>
         public void Dispose()
         {
             DebounceTimer?.Dispose();
@@ -33,16 +58,49 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// パスをキーとした監視アイテムのディクショナリ（大文字小文字を区別しない）
+    /// </summary>
     private readonly Dictionary<string, WatcherItem> _watchers = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// スレッド同期用ロックオブジェクト
+    /// </summary>
     private readonly object _lock = new();
+
+    /// <summary>
+    /// 破棄済みフラグ
+    /// </summary>
     private bool _isDisposed;
+
+    /// <summary>
+    /// デバウンス待機時間（秒）
+    /// </summary>
     private int _debounceSeconds = 10;
+
+    /// <summary>
+    /// 監視が有効化されているかどうか
+    /// </summary>
     private bool _isEnabled;
 
+    /// <summary>
+    /// いずれかのフォルダで変更が検知されデバウンス待機が完了した際に発生するイベント
+    /// </summary>
     public event Action? ChangeDetectedAndSettled;
+
+    /// <summary>
+    /// 特定のフォルダで変更が検知されデバウンス待機が完了した際に発生するイベント（引数は同期元パス）
+    /// </summary>
     public event Action<string>? ChangeDetectedForPathAndSettled;
+
+    /// <summary>
+    /// フォルダ監視中にエラーや切断が発生した際に発生するイベント
+    /// </summary>
     public event Action<string>? WatcherErrorOccurred;
 
+    /// <summary>
+    /// 現在いずれかのフォルダでアクティブに監視中であるかを取得します
+    /// </summary>
     public bool IsWatching
     {
         get
@@ -54,12 +112,22 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// 単一フォルダの監視を開始します
+    /// </summary>
+    /// <param name="sourcePath">監視対象の同期元フォルダパス</param>
+    /// <param name="debounceSeconds">変更検知後のデバウンス秒数</param>
     public void Start(string sourcePath, int debounceSeconds)
     {
         var paths = string.IsNullOrWhiteSpace(sourcePath) ? Enumerable.Empty<string>() : new[] { sourcePath };
         Start(paths, debounceSeconds);
     }
 
+    /// <summary>
+    /// 複数のフォルダパスの監視を一括で開始します
+    /// </summary>
+    /// <param name="sourcePaths">監視対象のフォルダパスコレクション</param>
+    /// <param name="debounceSeconds">変更検知後のデバウンス秒数（最低1秒）</param>
     public void Start(IEnumerable<string> sourcePaths, int debounceSeconds)
     {
         lock (_lock)
@@ -88,6 +156,10 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// 指定されたパスに対する WatcherItem を生成し、フォルダが存在すれば監視を開始、存在しなければ再接続待機を開始します
+    /// </summary>
+    /// <param name="path">監視対象フォルダパス</param>
     private void AddAndStartWatcher(string path)
     {
         var item = new WatcherItem { Path = path };
@@ -112,6 +184,7 @@ public class FolderWatcherService : IDisposable
                              | NotifyFilters.CreationTime
             };
 
+            // 各種変更イベントのハンドラ登録
             watcher.Changed += (s, e) => OnFileSystemEvent(item, e);
             watcher.Created += (s, e) => OnFileSystemEvent(item, e);
             watcher.Deleted += (s, e) => OnFileSystemEvent(item, e);
@@ -130,6 +203,9 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// すべてのフォルダ監視を停止し、リソースを解放します
+    /// </summary>
     public void Stop()
     {
         lock (_lock)
@@ -143,16 +219,28 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// ファイルの作成・更新・削除イベントを処理し、デバウンスタイマーをリセットします
+    /// </summary>
     private void OnFileSystemEvent(WatcherItem item, FileSystemEventArgs e)
     {
         ResetDebounceTimer(item, e.FullPath, e.ChangeType.ToString());
     }
 
+    /// <summary>
+    /// ファイルまたはディレクトリのリネームイベントを処理し、デバウンスタイマーをリセットします
+    /// </summary>
     private void OnRenamedEvent(WatcherItem item, RenamedEventArgs e)
     {
         ResetDebounceTimer(item, e.FullPath, $"Renamed from {e.OldName}");
     }
 
+    /// <summary>
+    /// デバウンスタイマーをリセットし、指定秒数後に同期トリガーを実行するようスケジュールします
+    /// </summary>
+    /// <param name="item">対象の監視アイテム</param>
+    /// <param name="filePath">変更検知されたファイルパス</param>
+    /// <param name="reason">変更理由（作成、変更、リネーム等）</param>
     private void ResetDebounceTimer(WatcherItem item, string filePath, string reason)
     {
         lock (_lock)
@@ -166,6 +254,10 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// デバウンス待機時間が経過した際に呼び出され、同期実行イベントを発行します
+    /// </summary>
+    /// <param name="item">待機が完了した監視アイテム</param>
     private void OnDebounceTimerElapsed(WatcherItem item)
     {
         lock (_lock)
@@ -187,6 +279,9 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// 監視エラーやネットワーク切断検知時の処理。エラーイベントを発行し、再接続待機を開始します
+    /// </summary>
     private void OnWatcherError(WatcherItem item, ErrorEventArgs e)
     {
         var ex = e.GetException();
@@ -203,6 +298,10 @@ public class FolderWatcherService : IDisposable
         }
     }
 
+    /// <summary>
+    /// ネットワーク切断やフォルダ消失時に、定期的にフォルダの存在を確認して監視を自動再開するタスクを開始します
+    /// </summary>
+    /// <param name="item">再接続を試行する監視アイテム</param>
     private void StartReconnectWatcher(WatcherItem item)
     {
         if (item.IsReconnecting) return;
@@ -232,6 +331,9 @@ public class FolderWatcherService : IDisposable
         });
     }
 
+    /// <summary>
+    /// アンマネージドリソースおよびマネージドリソースを解放します
+    /// </summary>
     public void Dispose()
     {
         if (_isDisposed) return;

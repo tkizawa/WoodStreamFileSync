@@ -8,6 +8,9 @@ using WoodStreamFileSync.Models;
 
 namespace WoodStreamFileSync.Views;
 
+/// <summary>
+/// bool 値を <see cref="Visibility"/>（Visible / Collapsed）に変換するコンバーター
+/// </summary>
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -25,6 +28,9 @@ public class BoolToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// bool 値を反転して <see cref="Visibility"/>（Collapsed / Visible）に変換するコンバーター
+/// </summary>
 public class InverseBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -42,6 +48,9 @@ public class InverseBoolToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// オブジェクトが null の場合に Visible、非 null の場合に Collapsed を返すコンバーター
+/// </summary>
 public class NullToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -55,6 +64,9 @@ public class NullToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// オブジェクトが非 null の場合に Visible、null の場合に Collapsed を返すコンバーター
+/// </summary>
 public class NotNullToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -68,6 +80,9 @@ public class NotNullToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// <see cref="LogLevel"/> を対応する表示用カラーブラシ（SolidColorBrush）に変換するコンバーター
+/// </summary>
 public class LogLevelToBrushConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -76,11 +91,11 @@ public class LogLevelToBrushConverter : IValueConverter
         {
             return level switch
             {
-                LogLevel.Info => new SolidColorBrush(Color.FromRgb(40, 116, 240)),     // Blue
-                LogLevel.Success => new SolidColorBrush(Color.FromRgb(46, 125, 50)),   // Green
-                LogLevel.Warning => new SolidColorBrush(Color.FromRgb(230, 124, 115)), // Orange/Amber
-                LogLevel.Error => new SolidColorBrush(Color.FromRgb(211, 47, 47)),     // Red
-                LogLevel.Debug => new SolidColorBrush(Color.FromRgb(117, 117, 117)),   // Gray
+                LogLevel.Info => new SolidColorBrush(Color.FromRgb(40, 116, 240)),     // 青
+                LogLevel.Success => new SolidColorBrush(Color.FromRgb(46, 125, 50)),   // 緑
+                LogLevel.Warning => new SolidColorBrush(Color.FromRgb(230, 124, 115)), // オレンジ/琥珀
+                LogLevel.Error => new SolidColorBrush(Color.FromRgb(211, 47, 47)),     // 赤
+                LogLevel.Debug => new SolidColorBrush(Color.FromRgb(117, 117, 117)),   // グレー
                 _ => new SolidColorBrush(Colors.Black)
             };
         }
@@ -93,6 +108,9 @@ public class LogLevelToBrushConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// <see cref="SyncStatus"/> を対応するステータスカラーブラシに変換するコンバーター
+/// </summary>
 public class SyncStatusToBrushConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -101,11 +119,11 @@ public class SyncStatusToBrushConverter : IValueConverter
         {
             return status switch
             {
-                SyncStatus.Idle => new SolidColorBrush(Color.FromRgb(46, 125, 50)),     // Green
-                SyncStatus.Syncing => new SolidColorBrush(Color.FromRgb(255, 152, 0)),  // Orange
-                SyncStatus.Success => new SolidColorBrush(Color.FromRgb(46, 125, 50)),  // Green
-                SyncStatus.Warning => new SolidColorBrush(Color.FromRgb(255, 193, 7)),  // Yellow/Amber
-                SyncStatus.Error => new SolidColorBrush(Color.FromRgb(211, 47, 47)),    // Red
+                SyncStatus.Idle => new SolidColorBrush(Color.FromRgb(46, 125, 50)),     // 緑（待機中）
+                SyncStatus.Syncing => new SolidColorBrush(Color.FromRgb(255, 152, 0)),  // オレンジ（同期中）
+                SyncStatus.Success => new SolidColorBrush(Color.FromRgb(46, 125, 50)),  // 緑（成功）
+                SyncStatus.Warning => new SolidColorBrush(Color.FromRgb(255, 193, 7)),  // 黄色（警告）
+                SyncStatus.Error => new SolidColorBrush(Color.FromRgb(211, 47, 47)),    // 赤（エラー）
                 _ => new SolidColorBrush(Colors.Gray)
             };
         }
@@ -118,6 +136,9 @@ public class SyncStatusToBrushConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// <see cref="AppTheme"/> 列挙型を表示用文字列に変換するコンバーター
+/// </summary>
 public class AppThemeToStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -141,6 +162,9 @@ public class AppThemeToStringConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// <see cref="AppLanguage"/> 列挙型を表示用文字列に変換するコンバーター
+/// </summary>
 public class AppLanguageToStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -165,18 +189,27 @@ public class AppLanguageToStringConverter : IValueConverter
 }
 
 /// <summary>
-/// WPF PasswordBoxのバインディングヘルパー
+/// WPF の <see cref="PasswordBox"/> に対する双方向データバインディングを可能にする添付プロパティヘルパークラス
 /// </summary>
 public static class PasswordBoxHelper
 {
+    /// <summary>
+    /// バインド対象のパスワード文字列を保持する添付プロパティ
+    /// </summary>
     public static readonly DependencyProperty BoundPassword =
         DependencyProperty.RegisterAttached("BoundPassword", typeof(string), typeof(PasswordBoxHelper),
             new FrameworkPropertyMetadata(string.Empty, OnBoundPasswordChanged));
 
+    /// <summary>
+    /// パスワードバインディングを有効化するかどうかを指定する添付プロパティ
+    /// </summary>
     public static readonly DependencyProperty BindPassword =
         DependencyProperty.RegisterAttached("BindPassword", typeof(bool), typeof(PasswordBoxHelper),
             new FrameworkPropertyMetadata(false, OnBindPasswordChanged));
 
+    /// <summary>
+    /// 循環更新防止用フラグを保持する内部添付プロパティ
+    /// </summary>
     private static readonly DependencyProperty UpdatingPassword =
         DependencyProperty.RegisterAttached("UpdatingPassword", typeof(bool), typeof(PasswordBoxHelper),
             new FrameworkPropertyMetadata(false));
@@ -190,6 +223,9 @@ public static class PasswordBoxHelper
     private static bool GetUpdatingPassword(DependencyObject dp) => (bool)dp.GetValue(UpdatingPassword);
     private static void SetUpdatingPassword(DependencyObject dp, bool value) => dp.SetValue(UpdatingPassword, value);
 
+    /// <summary>
+    /// ViewModel側のパスワード値変更時に PasswordBox へ反映します
+    /// </summary>
     private static void OnBoundPasswordChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is PasswordBox box)
@@ -199,6 +235,9 @@ public static class PasswordBoxHelper
         }
     }
 
+    /// <summary>
+    /// BindPassword プロパティ設定時に PasswordChanged イベントハンドラを接続/切断します
+    /// </summary>
     private static void OnBindPasswordChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is PasswordBox box)
@@ -217,6 +256,9 @@ public static class PasswordBoxHelper
         }
     }
 
+    /// <summary>
+    /// PasswordBox の入力変更イベントをキャッチし、ViewModel側のバインドプロパティを更新します
+    /// </summary>
     private static void HandlePasswordChanged(object sender, RoutedEventArgs e)
     {
         if (sender is PasswordBox box)
