@@ -6,14 +6,14 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="tkizawa.WoodStreamFileSync"
+    Name="57742TomokazuKizawa.WoodStreamFileSync"
     ProcessorArchitecture="{{ARCH}}"
-    Publisher="CN=tkizawa"
+    Publisher="CN=963B8572-7B10-48CC-9F90-46F0022D6A68"
     Version="{{VERSION}}" />
 
   <Properties>
-    <DisplayName>WoodStreamFileSync</DisplayName>
-    <PublisherDisplayName>tkizawa</PublisherDisplayName>
+    <DisplayName>WoodStream FileSync</DisplayName>
+    <PublisherDisplayName>Tomokazu Kizawa</PublisherDisplayName>
     <Logo>PackageAssets\StoreLogo.png</Logo>
     <Description>WoodStreamFileSync - 高速かつ安定したフォルダ同期・NASバックアップツール</Description>
   </Properties>
@@ -32,7 +32,7 @@
       Executable="WoodStreamFileSync.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="WoodStreamFileSync"
+        DisplayName="WoodStream FileSync"
         Description="WoodStreamFileSync - 高速かつ安定したフォルダ同期・NASバックアップツール"
         BackgroundColor="transparent"
         Square150x150Logo="PackageAssets\Square150x150Logo.png"
