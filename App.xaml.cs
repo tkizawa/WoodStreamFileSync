@@ -281,7 +281,7 @@ public partial class App : Application
     {
         if (_logWindow == null)
         {
-            _logWindow = new LogWindow(_logViewModel);
+            _logWindow = new LogWindow(_logViewModel, _configManager);
         }
 
         _logWindow.Show();
@@ -296,7 +296,7 @@ public partial class App : Application
     {
         if (_helpWindow == null)
         {
-            _helpWindow = new HelpWindow();
+            _helpWindow = new HelpWindow(_configManager);
         }
 
         _helpWindow.Show();

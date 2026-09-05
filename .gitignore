@@ -25,3 +25,7 @@ $RECYCLE.BIN/
 
 ## Log files
 *.log
+
+## Installers & Packages (Project Rule)
+Installer/
+MSIX/

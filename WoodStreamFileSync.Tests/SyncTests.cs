@@ -18,8 +18,16 @@ public class SyncTests
     [Fact]
     public void Test_App_Icon_Exists()
     {
-        var destIco = @"c:\Dev\WoodStreamFileSync\Resources\app_icon.ico";
-        var destPng = @"c:\Dev\WoodStreamFileSync\Resources\app_icon.png";
+        // テスト実行ディレクトリまたは親ディレクトリからプロジェクトルートを検索
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "WoodStreamFileSync.csproj")))
+        {
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(dir);
+        var destIco = Path.Combine(dir.FullName, "Resources", "app_icon.ico");
+        var destPng = Path.Combine(dir.FullName, "Resources", "app_icon.png");
 
         Assert.True(File.Exists(destIco));
         Assert.True(File.Exists(destPng));
@@ -28,6 +36,52 @@ public class SyncTests
     /// <summary>
     /// Windows DPAPI による平文パスワードの暗号化および復号が正常に行われるかテスト
     /// </summary>
+    [Fact]
+    public void Test_Config_Json_Japanese_Not_Escaped()
+    {
+        // プロジェクトルール: 設定ファイル内の日本語はUnicodeエスケープ（\uXXXX 等）せず可視テキストとして保存すること
+        var config = new AppConfig
+        {
+            FolderPairs = new List<SyncFolderPair>
+            {
+                new SyncFolderPair { Name = "同期テスト設定（日本語）", SourcePath = @"D:\テスト元", DestinationPath = @"D:\テスト先" }
+            }
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(config, new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNameCaseInsensitive = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        });
+
+        // \uXXXX 形式にエスケープされておらず、日本語文字列がそのまま含まれていることを検証
+        Assert.DoesNotContain(@"\u", json);
+        Assert.Contains("同期テスト設定（日本語）", json);
+        Assert.Contains("テスト元", json);
+        Assert.Contains("テスト先", json);
+    }
+
+    [Fact]
+    public void Test_WindowPlacement_Config_Properties()
+    {
+        // プロジェクトルール: ウィンドウ位置およびサイズ保存用モデルのテスト
+        var placement = new WindowPlacementConfig
+        {
+            Left = 100,
+            Top = 150,
+            Width = 800,
+            Height = 600,
+            IsMaximized = false
+        };
+
+        Assert.Equal(100, placement.Left);
+        Assert.Equal(150, placement.Top);
+        Assert.Equal(800, placement.Width);
+        Assert.Equal(600, placement.Height);
+        Assert.False(placement.IsMaximized);
+    }
+
     [Fact]
     public void Test_DPAPI_Encryption_Decryption()
     {

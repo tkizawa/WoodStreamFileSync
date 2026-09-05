@@ -12,6 +12,7 @@ namespace WoodStreamFileSync.Views;
 public partial class LogWindow : Window
 {
     private readonly LogViewModel _viewModel;
+    private readonly ConfigManager _configManager;
 
     /// <summary>
     /// アプリケーション終了等による明示的なClose要求かどうか
@@ -22,15 +23,21 @@ public partial class LogWindow : Window
     /// <see cref="LogWindow"/> クラスの新しいインスタンスを初期化し、自動スクロールハンドラ等を設定します
     /// </summary>
     /// <param name="viewModel">バインドする LogViewModel</param>
-    public LogWindow(LogViewModel viewModel)
+    /// <param name="configManager">設定マネージャーインスタンス（省略時は新規生成）</param>
+    public LogWindow(LogViewModel viewModel, ConfigManager? configManager = null)
     {
         InitializeComponent();
         _viewModel = viewModel;
+        _configManager = configManager ?? new ConfigManager();
         DataContext = _viewModel;
 
         SourceInitialized += (_, _) =>
         {
             ThemeService.Instance.UpdateWindowTitleBar(this, ThemeService.Instance.IsActualDark);
+
+            // プロジェクトルール: ウィンドウ位置およびサイズを復元
+            var config = _configManager.LoadConfig();
+            WindowPlacementHelper.RestorePlacement(this, config.LogWindowPlacement);
         };
 
         // 新規ログ追加時の自動スクロール処理
@@ -44,10 +51,22 @@ public partial class LogWindow : Window
     }
 
     /// <summary>
-    /// ウィンドウ閉じる（×）イベント処理。明示的なCloseでない場合は非表示（Hide）にします
+    /// 現在のウィンドウ位置・サイズを設定ファイルに保存します
+    /// </summary>
+    private void SavePlacement()
+    {
+        var placement = WindowPlacementHelper.CapturePlacement(this);
+        _configManager.SaveWindowPlacement("Log", placement);
+    }
+
+    /// <summary>
+    /// ウィンドウ閉じる（×）イベント処理。位置・サイズを保存し、明示的なCloseでない場合は非表示（Hide）にします
     /// </summary>
     protected override void OnClosing(CancelEventArgs e)
     {
+        // 閉じる/非表示にするタイミングで位置・サイズを保存
+        SavePlacement();
+
         if (!IsExplicitClose)
         {
             e.Cancel = true;
@@ -63,6 +82,7 @@ public partial class LogWindow : Window
     /// </summary>
     private void OnCloseClicked(object sender, RoutedEventArgs e)
     {
+        SavePlacement();
         Hide();
     }
 }

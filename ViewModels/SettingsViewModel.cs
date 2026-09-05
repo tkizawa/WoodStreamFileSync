@@ -371,6 +371,11 @@ public class SettingsViewModel : ViewModelBase
     public event Action? SettingsSaved;
 
     /// <summary>
+    /// 設定管理サービスへの参照
+    /// </summary>
+    public ConfigManager ConfigManager => _configManager;
+
+    /// <summary>
     /// <see cref="SettingsViewModel"/> の新しいインスタンスを初期化し、各種コマンドおよび設定を読み込みます
     /// </summary>
     /// <param name="configManager">設定マネージャーインスタンス</param>

@@ -171,6 +171,37 @@ public class ConfigManager
     }
 
     /// <summary>
+    /// 各GUIウィンドウの終了時配置情報（位置・サイズ）を保存します。
+    /// プロジェクトルール: 「終了時のウィンドウ位置およびサイズを保存し、次回起動時に復元すること」
+    /// </summary>
+    /// <param name="windowType">ウィンドウ種別 ("Settings", "Log", "Help")</param>
+    /// <param name="placement">保存する配置情報</param>
+    public void SaveWindowPlacement(string windowType, WindowPlacementConfig placement)
+    {
+        try
+        {
+            var config = LoadConfig();
+            switch (windowType)
+            {
+                case "Settings":
+                    config.SettingsWindowPlacement = placement;
+                    break;
+                case "Log":
+                    config.LogWindowPlacement = placement;
+                    break;
+                case "Help":
+                    config.HelpWindowPlacement = placement;
+                    break;
+            }
+            SaveConfig(config);
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Instance.LogError($"ウィンドウ配置情報の保存に失敗しました ({windowType}): {ex.Message}", "ConfigManager");
+        }
+    }
+
+    /// <summary>
     /// Windows DPAPI (ProtectedData) を使用して平文文字列を暗号化し、Base64文字列で返します
     /// </summary>
     /// <param name="plainText">暗号化する平文文字列</param>

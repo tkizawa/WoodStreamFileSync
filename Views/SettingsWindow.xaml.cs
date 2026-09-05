@@ -37,14 +37,30 @@ public partial class SettingsWindow : Window
         SourceInitialized += (_, _) =>
         {
             ThemeService.Instance.UpdateWindowTitleBar(this, ThemeService.Instance.IsActualDark);
+
+            // プロジェクトルール: ウィンドウ位置およびサイズを復元
+            var config = _viewModel.ConfigManager.LoadConfig();
+            WindowPlacementHelper.RestorePlacement(this, config.SettingsWindowPlacement);
         };
     }
 
     /// <summary>
-    /// ウィンドウ閉じる（×）イベント処理。タスクトレイ最小化設定時は非表示（Hide）にします
+    /// 現在のウィンドウ位置・サイズを設定ファイルに保存します
+    /// </summary>
+    private void SavePlacement()
+    {
+        var placement = WindowPlacementHelper.CapturePlacement(this);
+        _viewModel.ConfigManager.SaveWindowPlacement("Settings", placement);
+    }
+
+    /// <summary>
+    /// ウィンドウ閉じる（×）イベント処理。位置・サイズを保存し、タスクトレイ最小化設定時は非表示（Hide）にします
     /// </summary>
     protected override void OnClosing(CancelEventArgs e)
     {
+        // 閉じる/非表示にするタイミングで位置・サイズを保存
+        SavePlacement();
+
         if (!IsExplicitClose && _viewModel.MinimizeToTrayOnClose)
         {
             e.Cancel = true;
@@ -76,6 +92,7 @@ public partial class SettingsWindow : Window
     /// </summary>
     private void OnCloseClicked(object sender, RoutedEventArgs e)
     {
+        SavePlacement();
         Hide();
     }
 }

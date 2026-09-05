@@ -150,4 +150,21 @@ public class AppConfig
     /// 同期エラー発生時にトースト通知を表示するかどうか
     /// </summary>
     public bool ShowNotificationOnError { get; set; } = true;
+
+    // GUIウィンドウ位置・サイズ保持設定 (プロジェクトルール: 次回起動時の復元用)
+    public WindowPlacementConfig? SettingsWindowPlacement { get; set; }
+    public WindowPlacementConfig? LogWindowPlacement { get; set; }
+    public WindowPlacementConfig? HelpWindowPlacement { get; set; }
+}
+
+/// <summary>
+/// ウィンドウの位置・サイズ・最大化状態を保持するための設定モデル
+/// </summary>
+public class WindowPlacementConfig
+{
+    public double Left { get; set; }
+    public double Top { get; set; }
+    public double Width { get; set; }
+    public double Height { get; set; }
+    public bool IsMaximized { get; set; }
 }
