@@ -120,6 +120,20 @@ dotnet test WoodStreamFileSync.Tests/WoodStreamFileSync.Tests.csproj
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish
 ```
 
+### 4. スタンドアロンインストーラ (.exe) の作成
+Inno Setup を利用して、自己完結型のインストーラ（`.\Installer` フォルダに出力）を作成します：
+```powershell
+# x64 向けインストーラを作成 (例: WoodStreamFileSync_v1.0.0.0_x64_Setup.exe)
+powershell -ExecutionPolicy Bypass -File .\build_installer.ps1
+```
+
+### 5. Microsoft Store 向け MSIX パッケージ (.msix / .msixbundle) の作成
+Microsoft Store 提出用またはサイドローディング用のパッケージ（`.\MSIX` フォルダに出力）を作成します。
+x64 と Arm64 の両アーキテクチャパッケージ、および統合バンドル (`.msixbundle`) が自動生成されます：
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_msix.ps1
+```
+
 ---
 
 ## 📋 操作マニュアル
