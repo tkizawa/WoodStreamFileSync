@@ -1,4 +1,4 @@
-# WoodStreamFileSync - Microsoft Store 向け MSIX パッケージ自動ビルドスクリプト
+﻿# WoodStreamFileSync - Microsoft Store 向け MSIX パッケージ自動ビルドスクリプト
 # プロジェクトルール:
 # - Microsoft Store に登録する場合は .\MSIX フォルダに msix ファイルを作成すること。
 # - アーキテクチャは x64 と Arm64 を作成すること。

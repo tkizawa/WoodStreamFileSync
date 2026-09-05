@@ -1,14 +1,28 @@
 ; WoodStreamFileSync - Inno Setup Script
 ; プロジェクトルール:
 ; - スタンドアロンインストーラは exe 形式で .\Installer フォルダに作成し、ファイル名にはバージョン番号を含めること。
-; - 実行環境のアーキテクチャ (x64) に合わせたものを作成すること。
+; - 実行環境のアーキテクチャ (x64, arm64) に合わせたものを作成すること。
+
+#ifndef MyAppVersion
+  #define MyAppVersion "1.0.0.0"
+#endif
+
+#ifndef MyAppArch
+  #define MyAppArch "x64"
+#endif
+
+#ifndef MyOutputDir
+  #define MyOutputDir "Installer"
+#endif
+
+#ifndef MySourceDir
+  #define MySourceDir "publish\win-" + MyAppArch
+#endif
 
 #define MyAppName "WoodStreamFileSync"
-#define MyAppVersion "1.0.0.0"
 #define MyAppPublisher "tkizawa"
 #define MyAppExeName "WoodStreamFileSync.exe"
-#define MyOutputDir "Installer"
-#define MyOutputBaseFilename "WoodStreamFileSync_v" + MyAppVersion + "_x64_Setup"
+#define MyOutputBaseFilename "WoodStreamFileSync_v" + MyAppVersion + "_" + MyAppArch + "_Setup"
 
 [Setup]
 AppId={{D68F2F7D-42AC-4BE3-B077-B79BC58A8A1E}
@@ -30,9 +44,14 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 
-; x64 アーキテクチャ指定
+; アーキテクチャに応じた制限設定
+#if MyAppArch == "arm64"
+ArchitecturesAllowed=arm64
+ArchitecturesInstallIn64BitMode=arm64
+#else
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+#endif
 
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
@@ -43,7 +62,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; 自己完結型 publish 成果物を配置
-Source: "publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MySourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

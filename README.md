@@ -121,10 +121,14 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 ```
 
 ### 4. スタンドアロンインストーラ (.exe) の作成
-Inno Setup を利用して、自己完結型のインストーラ（`.\Installer` フォルダに出力）を作成します：
+Inno Setup を利用して、自己完結型のインストーラ（`.\Installer` フォルダに出力）を作成します。
+x64 と Arm64 の両アーキテクチャ向けのインストーラが自動生成されます：
 ```powershell
-# x64 向けインストーラを作成 (例: WoodStreamFileSync_v1.0.0.0_x64_Setup.exe)
+# x64 および Arm64 のインストーラを作成
 powershell -ExecutionPolicy Bypass -File .\build_installer.ps1
+
+# 特定のアーキテクチャのみ作成する場合
+powershell -ExecutionPolicy Bypass -File .\build_installer.ps1 -Architectures @("x64")
 ```
 
 ### 5. Microsoft Store 向け MSIX パッケージ (.msix / .msixbundle) の作成
