@@ -220,7 +220,21 @@
                     </StackPanel>
                 </GroupBox>
 
-                <!-- 8. 注意事項 & 免責事項 -->
+                <!-- 8. 設定のバックアップ & 復元 -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📦" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Help.SecBackupTitle}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Theme.Card.TitleText}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Help.SecBackupP1}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Help.SecBackupP2}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 9. 注意事項 & 免責事項 -->
                 <GroupBox BorderBrush="#F59E0B">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">

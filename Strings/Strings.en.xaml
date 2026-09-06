@@ -72,6 +72,19 @@
     <sys:String x:Key="Settings.NotifyError">Show desktop notification on sync errors</sys:String>
     <sys:String x:Key="Settings.NotifySuccess">Show notification on every successful sync</sys:String>
 
+    <!-- Backup & Restore Settings (Export / Import) -->
+    <sys:String x:Key="Settings.BackupGroup">📦 Backup &amp; Restore Settings</sys:String>
+    <sys:String x:Key="Settings.BackupDesc">Export current settings to a JSON file or restore from a backup file.</sys:String>
+    <sys:String x:Key="Settings.BtnExport">📤 Export Settings...</sys:String>
+    <sys:String x:Key="Settings.BtnImport">📥 Import Settings...</sys:String>
+    <sys:String x:Key="Settings.ExportDialogTitle">Select destination to export settings</sys:String>
+    <sys:String x:Key="Settings.ImportDialogTitle">Select settings file to import</sys:String>
+    <sys:String x:Key="Settings.ExportSuccess">Settings exported successfully.</sys:String>
+    <sys:String x:Key="Settings.ImportConfirm">Current settings will be overwritten by the imported settings. Do you want to continue?</sys:String>
+    <sys:String x:Key="Settings.ImportSuccess">Settings imported and applied to the sync engine successfully.</sys:String>
+    <sys:String x:Key="Settings.ImportError">Failed to load or parse settings file. Please verify it is a valid JSON configuration file.</sys:String>
+    <sys:String x:Key="Settings.ImportPasswordWarning">* NAS authentication password could not be decrypted for security reasons. Please re-enter your password if needed.</sys:String>
+
     <sys:String x:Key="Settings.BtnLogs">📋 View Logs</sys:String>
     <sys:String x:Key="Settings.BtnHelp">❓ User Guide</sys:String>
     <sys:String x:Key="Settings.BtnSyncNow">⚡ Sync Now</sys:String>
@@ -131,6 +144,10 @@
     <sys:String x:Key="Help.Sec7P1">• "📋 View Logs" button: Inspect detailed transfer history and Robocopy error messages in real time.</sys:String>
     <sys:String x:Key="Help.Sec7P2">• Daily Log Storage: Log files are automatically saved daily to %LOCALAPPDATA%\WoodStreamFileSync\logs. Click "📁 Open Log Folder" to view.</sys:String>
     <sys:String x:Key="Help.Sec7P3">• Manual Instant Sync: Press "⚡ Sync Now" to immediately synchronize folders to the latest state.</sys:String>
+
+    <sys:String x:Key="Help.SecBackupTitle">8. Backup &amp; Restore Settings (Export / Import)</sys:String>
+    <sys:String x:Key="Help.SecBackupP1">• Export Settings: Exports all current settings (folder pairs, schedules, options, etc.) to a JSON file. Useful for backups or migrating to another PC.</sys:String>
+    <sys:String x:Key="Help.SecBackupP2">• Import Settings: Loads a saved JSON configuration file and immediately applies it to the app and sync engine. (* For security reasons, NAS passwords must be re-entered if imported on a different PC or user account.)</sys:String>
 
     <sys:String x:Key="Help.Sec8Title">⚠️ Important Notice &amp; Disclaimer</sys:String>
     <sys:String x:Key="Help.Sec8P1">1. Powered by Robocopy: This tool executes robocopy.exe for file synchronization. Especially when Mirroring (/MIR) is enabled, destination files missing in source are automatically purged. Please double-check folder paths carefully.</sys:String>

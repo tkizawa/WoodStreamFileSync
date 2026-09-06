@@ -18,7 +18,7 @@ public class ConfigManager
     /// 設定ファイルのJSONシリアライズ・デシリアライズ用オプション
     /// （日本語文字列のエスケープ防止、インデント整形、大文字小文字無視を適用）
     /// </summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    public static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
@@ -167,6 +167,100 @@ public class ConfigManager
         {
             LoggerService.Instance.LogError($"設定の保存に失敗しました: {ex.Message}", "ConfigManager");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// 指定された設定オブジェクトをJSONファイルとしてエクスポートします
+    /// </summary>
+    /// <param name="config">エクスポートする設定情報</param>
+    /// <param name="filePath">エクスポート先のファイルパス</param>
+    /// <returns>成功した場合は true、失敗した場合は false</returns>
+    public bool ExportConfig(AppConfig config, string filePath)
+    {
+        try
+        {
+            // パスワードをWindows DPAPIで暗号化
+            if (!string.IsNullOrEmpty(config.NasPassword))
+            {
+                config.NasPasswordEncrypted = EncryptPassword(config.NasPassword);
+            }
+
+            var json = JsonSerializer.Serialize(config, JsonOptions);
+            File.WriteAllText(filePath, json, Encoding.UTF8);
+            LoggerService.Instance.LogInfo($"設定をエクスポートしました: {filePath}", "ConfigManager");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Instance.LogError($"設定のエクスポートに失敗しました ({filePath}): {ex.Message}", "ConfigManager");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 指定されたJSONファイルから設定情報をインポートします
+    /// </summary>
+    /// <param name="filePath">インポート元の設定ファイルパス</param>
+    /// <param name="passwordDecryptionFailed">パスワードのDPAPI復号に失敗した（別環境でのエクスポート等）場合に true</param>
+    /// <returns>読み込まれた <see cref="AppConfig"/>。読み込み失敗時は null</returns>
+    public AppConfig? ImportConfig(string filePath, out bool passwordDecryptionFailed)
+    {
+        passwordDecryptionFailed = false;
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                LoggerService.Instance.LogWarning($"インポート対象のファイルが存在しません: {filePath}", "ConfigManager");
+                return null;
+            }
+
+            var json = File.ReadAllText(filePath, Encoding.UTF8);
+            var config = JsonSerializer.Deserialize<AppConfig>(json, JsonOptions);
+            if (config == null)
+            {
+                return null;
+            }
+
+            // 後方互換性マイグレーション: FolderPairsが空で旧単一フォルダ設定が存在する場合に移行
+            if ((config.FolderPairs == null || config.FolderPairs.Count == 0) &&
+                (!string.IsNullOrWhiteSpace(config.SourcePath) || !string.IsNullOrWhiteSpace(config.DestinationPath)))
+            {
+                config.FolderPairs = new List<SyncFolderPair>
+                {
+                    new SyncFolderPair
+                    {
+                        SourcePath = config.SourcePath,
+                        DestinationPath = config.DestinationPath,
+                        IsEnabled = true
+                    }
+                };
+            }
+
+            // DPAPIで暗号化されたパスワードを復号検証
+            if (!string.IsNullOrEmpty(config.NasPasswordEncrypted))
+            {
+                var decrypted = DecryptPassword(config.NasPasswordEncrypted);
+                if (string.IsNullOrEmpty(decrypted))
+                {
+                    // 別PCまたは別ユーザーでエクスポートされたため復号不可
+                    passwordDecryptionFailed = true;
+                    config.NasPassword = "";
+                    config.NasPasswordEncrypted = "";
+                }
+                else
+                {
+                    config.NasPassword = decrypted;
+                }
+            }
+
+            LoggerService.Instance.LogInfo($"設定をインポートしました: {filePath}", "ConfigManager");
+            return config;
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Instance.LogError($"設定のインポートに失敗しました ({filePath}): {ex.Message}", "ConfigManager");
+            return null;
         }
     }
 

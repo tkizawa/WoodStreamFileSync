@@ -288,5 +288,144 @@ public class SyncTests
             }
         }
     }
+
+    /// <summary>
+    /// 設定のエクスポートとインポートが正常に実行され、日本語を含む全設定が保持されるかテスト
+    /// </summary>
+    [Fact]
+    public void Test_Export_And_Import_Config_Success()
+    {
+        var tempFile = Path.Combine(Path.GetTempPath(), $"wsfs_test_{Guid.NewGuid():N}.json");
+        try
+        {
+            var configManager = new ConfigManager();
+            var originalConfig = new AppConfig
+            {
+                EnablePeriodicSync = true,
+                PeriodicIntervalMinutes = 45,
+                EnableRealtimeSync = true,
+                DebounceDelaySeconds = 15,
+                EnableNasAuth = true,
+                NasUsername = "backup_user",
+                NasPassword = "TestSecretPassword123!",
+                Robocopy = new RobocopyOptions
+                {
+                    IsMirror = true,
+                    IncludeEmptySubdirectories = true,
+                    RetryCount = 3,
+                    WaitTimeSeconds = 5,
+                    AdditionalArguments = "/MT:16 /FFT",
+                    ExcludeFiles = "*.tmp ~*",
+                    ExcludeDirs = ".git temp"
+                },
+                FolderPairs = new List<SyncFolderPair>
+                {
+                    new SyncFolderPair
+                    {
+                        Name = "ドキュメントバックアップ（本番）",
+                        SourcePath = @"C:\Users\test\Documents",
+                        DestinationPath = @"\\NAS-SERVER\Backup\Docs",
+                        IsEnabled = true
+                    },
+                    new SyncFolderPair
+                    {
+                        Name = "写真同期（アーカイブ）",
+                        SourcePath = @"D:\Photos",
+                        DestinationPath = @"\\NAS-SERVER\Backup\Photos",
+                        IsEnabled = false
+                    }
+                },
+                ThemeMode = AppTheme.Dark,
+                LanguageMode = AppLanguage.Japanese,
+                LaunchAtStartup = true,
+                MinimizeToTrayOnClose = true,
+                ShowNotificationOnSuccess = true,
+                ShowNotificationOnError = true
+            };
+
+            // エクスポート実行
+            var exportSuccess = configManager.ExportConfig(originalConfig, tempFile);
+            Assert.True(exportSuccess);
+            Assert.True(File.Exists(tempFile));
+
+            // 日本語がエスケープされず可視テキストとして出力されていることを検証
+            var jsonContent = File.ReadAllText(tempFile, System.Text.Encoding.UTF8);
+            Assert.Contains("ドキュメントバックアップ（本番）", jsonContent);
+            Assert.Contains("写真同期（アーカイブ）", jsonContent);
+            Assert.DoesNotContain(@"\u", jsonContent);
+
+            // インポート実行（同一PC・ユーザーなのでパスワード復号も成功）
+            var imported = configManager.ImportConfig(tempFile, out bool passwordFailed);
+            Assert.NotNull(imported);
+            Assert.False(passwordFailed);
+
+            // 各プロパティの復元検証
+            Assert.Equal(originalConfig.PeriodicIntervalMinutes, imported.PeriodicIntervalMinutes);
+            Assert.Equal(originalConfig.DebounceDelaySeconds, imported.DebounceDelaySeconds);
+            Assert.Equal(originalConfig.EnableNasAuth, imported.EnableNasAuth);
+            Assert.Equal(originalConfig.NasUsername, imported.NasUsername);
+            Assert.Equal(originalConfig.NasPassword, imported.NasPassword);
+            Assert.Equal(originalConfig.Robocopy.IsMirror, imported.Robocopy.IsMirror);
+            Assert.Equal(originalConfig.Robocopy.RetryCount, imported.Robocopy.RetryCount);
+            Assert.Equal(originalConfig.Robocopy.WaitTimeSeconds, imported.Robocopy.WaitTimeSeconds);
+            Assert.Equal(originalConfig.Robocopy.AdditionalArguments, imported.Robocopy.AdditionalArguments);
+            Assert.Equal(originalConfig.Robocopy.ExcludeFiles, imported.Robocopy.ExcludeFiles);
+            Assert.Equal(originalConfig.Robocopy.ExcludeDirs, imported.Robocopy.ExcludeDirs);
+            Assert.Equal(originalConfig.ThemeMode, imported.ThemeMode);
+            Assert.Equal(originalConfig.LanguageMode, imported.LanguageMode);
+            Assert.Equal(originalConfig.LaunchAtStartup, imported.LaunchAtStartup);
+            Assert.Equal(originalConfig.MinimizeToTrayOnClose, imported.MinimizeToTrayOnClose);
+            Assert.Equal(originalConfig.ShowNotificationOnSuccess, imported.ShowNotificationOnSuccess);
+            Assert.Equal(originalConfig.ShowNotificationOnError, imported.ShowNotificationOnError);
+
+            Assert.Equal(2, imported.FolderPairs.Count);
+            Assert.Equal("ドキュメントバックアップ（本番）", imported.FolderPairs[0].Name);
+            Assert.Equal(@"C:\Users\test\Documents", imported.FolderPairs[0].SourcePath);
+            Assert.Equal(@"\\NAS-SERVER\Backup\Docs", imported.FolderPairs[0].DestinationPath);
+            Assert.True(imported.FolderPairs[0].IsEnabled);
+
+            Assert.Equal("写真同期（アーカイブ）", imported.FolderPairs[1].Name);
+            Assert.False(imported.FolderPairs[1].IsEnabled);
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                try { File.Delete(tempFile); } catch { }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 存在しないファイルや破損した不正JSONファイルをインポートした際にnullが返りエラーハンドリングされるかテスト
+    /// </summary>
+    [Fact]
+    public void Test_Import_Invalid_And_NonExistent_File()
+    {
+        var configManager = new ConfigManager();
+
+        // 1. 存在しないファイル
+        var nonExistent = Path.Combine(Path.GetTempPath(), $"non_existent_{Guid.NewGuid():N}.json");
+        var result1 = configManager.ImportConfig(nonExistent, out bool pwdFailed1);
+        Assert.Null(result1);
+        Assert.False(pwdFailed1);
+
+        // 2. 構文不正なJSONファイル
+        var corruptFile = Path.Combine(Path.GetTempPath(), $"corrupt_{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(corruptFile, "{ invalid json content [[[", System.Text.Encoding.UTF8);
+            var result2 = configManager.ImportConfig(corruptFile, out bool pwdFailed2);
+            Assert.Null(result2);
+            Assert.False(pwdFailed2);
+        }
+        finally
+        {
+            if (File.Exists(corruptFile))
+            {
+                try { File.Delete(corruptFile); } catch { }
+            }
+        }
+    }
 }
 

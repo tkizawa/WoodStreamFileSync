@@ -366,6 +366,16 @@ public class SettingsViewModel : ViewModelBase
     public ICommand SyncNowCommand { get; }
 
     /// <summary>
+    /// 設定エクスポートコマンド
+    /// </summary>
+    public ICommand ExportSettingsCommand { get; }
+
+    /// <summary>
+    /// 設定インポートコマンド
+    /// </summary>
+    public ICommand ImportSettingsCommand { get; }
+
+    /// <summary>
     /// 設定保存が完了した際に発生するイベント
     /// </summary>
     public event Action? SettingsSaved;
@@ -402,6 +412,8 @@ public class SettingsViewModel : ViewModelBase
         BrowseDestinationCommand = new RelayCommand(BrowseDestination);
         TestNasConnectionCommand = new AsyncRelayCommand(TestNasConnectionAsync);
         SaveSettingsCommand = new RelayCommand(() => SaveSettings(showDialog: true));
+        ExportSettingsCommand = new RelayCommand(ExportSettings);
+        ImportSettingsCommand = new RelayCommand(ImportSettings);
         SyncNowCommand = new AsyncRelayCommand(async () =>
         {
             SaveSettings(showDialog: false);
@@ -637,6 +649,96 @@ public class SettingsViewModel : ViewModelBase
                 var title = loc.IsJapanese ? "エラー" : "Error";
                 MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    /// <summary>
+    /// 現在の設定内容をJSONファイルへエクスポートします
+    /// </summary>
+    private void ExportSettings()
+    {
+        var loc = LocalizationService.Instance;
+        var defaultFileName = $"WoodStreamFileSync_Settings_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        var dialog = new SaveFileDialog
+        {
+            Title = loc.GetString("Settings.ExportDialogTitle"),
+            Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+            FileName = defaultFileName,
+            DefaultExt = ".json"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            var config = ToConfig();
+            if (_configManager.ExportConfig(config, dialog.FileName))
+            {
+                var msg = loc.GetString("Settings.ExportSuccess");
+                var title = loc.IsJapanese ? "設定エクスポート" : "Export Settings";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                var msg = loc.IsJapanese ? "設定のエクスポートに失敗しました。" : "Failed to export settings.";
+                var title = loc.IsJapanese ? "エラー" : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 指定されたJSONファイルから設定をインポートし、画面とエンジンに反映します
+    /// </summary>
+    private void ImportSettings()
+    {
+        var loc = LocalizationService.Instance;
+        var dialog = new OpenFileDialog
+        {
+            Title = loc.GetString("Settings.ImportDialogTitle"),
+            Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+            DefaultExt = ".json"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            var confirmMsg = loc.GetString("Settings.ImportConfirm");
+            var confirmTitle = loc.IsJapanese ? "設定インポート確認" : "Confirm Import";
+            if (MessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            var importedConfig = _configManager.ImportConfig(dialog.FileName, out bool passwordDecryptionFailed);
+            if (importedConfig == null)
+            {
+                var errorMsg = loc.GetString("Settings.ImportError");
+                var errorTitle = loc.IsJapanese ? "エラー" : "Error";
+                MessageBox.Show(errorMsg, errorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // 設定ファイルに保存
+            _configManager.SaveConfig(importedConfig);
+
+            // ViewModel への反映
+            LoadFromConfig();
+
+            // 同期エンジンへの反映
+            _syncManager.ApplyConfig(importedConfig);
+
+            // テーマと表示言語を即時反映
+            ThemeService.Instance.ApplyTheme(importedConfig.ThemeMode);
+            LocalizationService.Instance.ApplyLanguage(importedConfig.LanguageMode);
+
+            SettingsSaved?.Invoke();
+
+            var successMsg = loc.GetString("Settings.ImportSuccess");
+            if (passwordDecryptionFailed)
+            {
+                successMsg += "\n\n" + loc.GetString("Settings.ImportPasswordWarning");
+            }
+            var title = loc.IsJapanese ? "設定インポート" : "Import Settings";
+            MessageBox.Show(successMsg, title, MessageBoxButton.OK,
+                passwordDecryptionFailed ? MessageBoxImage.Warning : MessageBoxImage.Information);
         }
     }
 

@@ -72,6 +72,19 @@
     <sys:String x:Key="Settings.NotifyError">同期エラー時に通知を表示する</sys:String>
     <sys:String x:Key="Settings.NotifySuccess">同期成功時にも毎回通知を表示する</sys:String>
 
+    <!-- 設定のバックアップ & 復元 (エクスポート / インポート) -->
+    <sys:String x:Key="Settings.BackupGroup">📦 設定のバックアップ &amp; 復元</sys:String>
+    <sys:String x:Key="Settings.BackupDesc">現在の設定内容をJSONファイルとして書き出したり、バックアップファイルから復元できます。</sys:String>
+    <sys:String x:Key="Settings.BtnExport">📤 設定をエクスポート...</sys:String>
+    <sys:String x:Key="Settings.BtnImport">📥 設定をインポート...</sys:String>
+    <sys:String x:Key="Settings.ExportDialogTitle">設定のエクスポート先を選択してください</sys:String>
+    <sys:String x:Key="Settings.ImportDialogTitle">インポートする設定ファイルを選択してください</sys:String>
+    <sys:String x:Key="Settings.ExportSuccess">設定を正常にエクスポートしました。</sys:String>
+    <sys:String x:Key="Settings.ImportConfirm">現在の設定がインポートした設定で上書きされます。続行しますか？</sys:String>
+    <sys:String x:Key="Settings.ImportSuccess">設定をインポートし、同期エンジンに適用しました。</sys:String>
+    <sys:String x:Key="Settings.ImportError">設定ファイルの読み込みまたは解析に失敗しました。正しいJSON設定ファイルか確認してください。</sys:String>
+    <sys:String x:Key="Settings.ImportPasswordWarning">※ NAS認証パスワードはセキュリティ保護のため復号できませんでした。必要に応じてパスワードを再入力してください。</sys:String>
+
     <sys:String x:Key="Settings.BtnLogs">📋 ログを表示</sys:String>
     <sys:String x:Key="Settings.BtnHelp">❓ 操作説明</sys:String>
     <sys:String x:Key="Settings.BtnSyncNow">⚡ 今すぐ同期</sys:String>
@@ -131,6 +144,10 @@
     <sys:String x:Key="Help.Sec7P1">• 「📋 ログを表示」ボタン: Robocopy の詳細な転送履歴やエラーメッセージをリアルタイムで確認できます。</sys:String>
     <sys:String x:Key="Help.Sec7P2">• ログの保存: 日別ログファイルが %LOCALAPPDATA%\WoodStreamFileSync\logs に自動保存されます。「📁 ログフォルダを開く」からアクセスできます。</sys:String>
     <sys:String x:Key="Help.Sec7P3">• 手動即時同期: いつでも「⚡ 今すぐ同期」ボタンを押してその場で最新状態に同期できます。</sys:String>
+
+    <sys:String x:Key="Help.SecBackupTitle">8. 設定のバックアップ &amp; 復元 (エクスポート / インポート)</sys:String>
+    <sys:String x:Key="Help.SecBackupP1">• 設定のエクスポート: 現在のすべての設定（フォルダペア、スケジュール、オプションなど）をJSONファイルとして書き出します。PCの移行や設定のバックアップに便利です。</sys:String>
+    <sys:String x:Key="Help.SecBackupP2">• 設定のインポート: 保存されたJSON設定ファイルを読み込み、現在の設定および同期エンジンに適用します。（※ NAS認証パスワードはセキュリティ保護のため、別PC・別ユーザー環境へ移行した場合は再入力が必要です）</sys:String>
 
     <sys:String x:Key="Help.Sec8Title">⚠️ ご利用上の注意事項 &amp; 免責事項</sys:String>
     <sys:String x:Key="Help.Sec8P1">1. 同期エンジンに Robocopy を使用: 本ツールは Windows 標準の robocopy.exe を用いて同期します。特に完全ミラーリング (/MIR) 有効時は、同期元にないファイルが同期先から自動削除されます。フォルダ指定には十分ご注意ください。</sys:String>
