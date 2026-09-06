@@ -103,7 +103,7 @@
     <!-- Help Window -->
     <sys:String x:Key="Help.Title">WoodStreamFileSync - 操作説明 &amp; ご利用ガイド</sys:String>
     <sys:String x:Key="Help.Header">WoodStreamFileSync 操作説明書</sys:String>
-    <sys:String x:Key="Help.Subtitle">機能の使い方とおすすめの設定ガイド (v1.0.0.0)</sys:String>
+    <sys:String x:Key="Help.Subtitle">機能の使い方とおすすめの設定ガイド (v1.0.1.0)</sys:String>
 
     <sys:String x:Key="Help.Sec1Title">1. 基本操作とタスクトレイ常駐</sys:String>
     <sys:String x:Key="Help.Sec1Desc">本アプリは、Windowsのタスクトレイ（画面右下の通知領域）に常駐してバックグラウンドでフォルダ同期を行います。</sys:String>

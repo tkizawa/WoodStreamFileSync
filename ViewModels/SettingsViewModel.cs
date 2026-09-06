@@ -50,6 +50,11 @@ public class SettingsViewModel : ViewModelBase
     private SyncStatus _currentSyncStatus = SyncStatus.Idle;
 
     /// <summary>
+    /// アプリケーションのバージョン文字列（例: "v1.0.1.0"）
+    /// </summary>
+    public string AppVersion => "v" + (System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.1.0");
+
+    /// <summary>
     /// 同期フォルダペアのリスト
     /// </summary>
     public ObservableCollection<FolderPairViewModel> FolderPairs

@@ -197,7 +197,7 @@
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
                             <TextBlock Text="{DynamicResource App.Title}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Theme.Header.Text}"/>
-                            <TextBlock Text=" v1.0.0.0" FontSize="11" Foreground="{DynamicResource Theme.Header.SubText}" Margin="6,0,0,2" VerticalAlignment="Bottom"/>
+                            <TextBlock Text="{Binding AppVersion, StringFormat=' {0}'}" FontSize="11" Foreground="{DynamicResource Theme.Header.SubText}" Margin="6,0,0,2" VerticalAlignment="Bottom"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource App.Subtitle}" FontSize="11" Foreground="{DynamicResource Theme.Header.SubText}"/>
                     </StackPanel>

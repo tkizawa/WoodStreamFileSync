@@ -103,7 +103,7 @@
     <!-- Help Window -->
     <sys:String x:Key="Help.Title">WoodStreamFileSync - User Guide &amp; Manual</sys:String>
     <sys:String x:Key="Help.Header">WoodStreamFileSync User Guide</sys:String>
-    <sys:String x:Key="Help.Subtitle">Feature Overview and Recommended Settings Guide (v1.0.0.0)</sys:String>
+    <sys:String x:Key="Help.Subtitle">Feature Overview and Recommended Settings Guide (v1.0.1.0)</sys:String>
 
     <sys:String x:Key="Help.Sec1Title">1. Basic Operations &amp; Taskbar Tray</sys:String>
     <sys:String x:Key="Help.Sec1Desc">This application runs continuously in the Windows taskbar notification tray in the background.</sys:String>

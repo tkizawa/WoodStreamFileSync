@@ -4,7 +4,7 @@
 ; - 実行環境のアーキテクチャ (x64, arm64) に合わせたものを作成すること。
 
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0.0"
+  #define MyAppVersion "1.0.1.0"
 #endif
 
 #ifndef MyAppArch

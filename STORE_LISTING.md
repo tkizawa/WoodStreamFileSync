@@ -92,8 +92,13 @@ Robocopy
 © 2026 Tomokazu Kizawa. All rights reserved.
 ```
 
-### 7. 初回リリースノート (What's new in this version)
+### 7. リリースノート (What's new in this version)
 ```text
+WoodStream FileSync v1.0.1:
+- バージョン情報表示およびUI表示の改善
+- 最新 .NET 10 ランタイム環境への最適化
+- パッケージおよびインストーラの更新
+
 WoodStream FileSync v1.0.0 正式リリース:
 - Robocopy ベースのバックグラウンドフォルダ同期機能
 - 複数フォルダペアの管理
@@ -188,6 +193,11 @@ system tray
 
 ### 7. Release Notes (What's new in this version)
 ```text
+WoodStream FileSync v1.0.1:
+- UI and version display refinements
+- Optimizations for the latest .NET 10 runtime
+- Updated installers and packages
+
 Initial release of WoodStream FileSync v1.0.0:
 - Robocopy-powered background folder synchronization
 - Multiple folder pair management

@@ -6,7 +6,7 @@
 
   [![.NET 10](https://img.shields.io/badge/.NET-10.0-blue.svg)](https://dotnet.microsoft.com/)
   [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6.svg)](https://www.microsoft.com/windows)
-  [![Version](https://img.shields.io/badge/Version-1.0.0.0-informational.svg)](https://github.com/tkizawa/WoodStreamFileSync)
+  [![Version](https://img.shields.io/badge/Version-1.0.1.0-informational.svg)](https://github.com/tkizawa/WoodStreamFileSync)
   [![Language](https://img.shields.io/badge/Languages-Japanese%20%7C%20English-success.svg)](https://github.com/tkizawa/WoodStreamFileSync)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 </div>
